@@ -47,7 +47,9 @@ class store_HomeScreen extends StatelessWidget {
                     custom_Icons(theme: theme, iconData: Icons.menu_book, onTap: (){
                       Navigator.pushNamed(context, Routes.store_menuItems);
                     }),
-                    custom_Icons(theme: theme, iconData: Icons.receipt_long, onTap: (){}),
+                    custom_Icons(theme: theme, iconData: Icons.receipt_long, onTap: (){
+                      Navigator.pushNamed(context, Routes.store_OrdersScreen);
+                    }),
                     custom_Icons(
                         theme: theme, iconData: Icons.add_card_rounded, onTap: (){
                           Navigator.pushNamed(context, Routes.store_addItemsScreen);

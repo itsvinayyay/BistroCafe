@@ -21,6 +21,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   late String entryNo;
   int _currentpage = 0;
   final PageController _pageController = PageController(initialPage: 0);
@@ -61,6 +62,87 @@ class _HomeScreenState extends State<HomeScreen> {
     final themeMode = context.watch<ThemeCubit>().state;
     final ThemeData theme = themeMode == MyTheme.dark ? darkTheme : lightTheme;
     return Scaffold(
+      key: _scaffoldKey,
+      endDrawer: ClipRRect(
+        borderRadius: BorderRadius.only(topLeft: Radius.circular(40), bottomLeft: Radius.circular(40)),
+        child: Drawer(
+          backgroundColor: theme.colorScheme.primary,
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: <Widget>[
+              DrawerHeader(
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.secondary,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: Colors.black,
+                      child: Icon(
+                        Icons.person,
+                        size: 40.sp,
+                        color: theme.colorScheme.secondary,
+                      ),
+                      radius: 30.sp,
+                    ),
+                    SizedBox(height: 10,),
+
+                    Text('Delightful Dining, Every Bite a Delight!', style: theme.textTheme.titleSmall,),
+                    SizedBox(height: 10,),
+                    Text(entryNo, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 20.sp, color: theme.colorScheme.primary, fontFamily: 'BentonSans_Bold'))
+                  ],
+                ),
+              ),
+              ListTile(
+                horizontalTitleGap: 0,
+                leading: Icon(
+                  Icons.notifications,
+                  color: theme.colorScheme.secondary,
+                ),
+                title: Text('Notifications', style: theme.textTheme.bodyLarge,),
+                onTap: () {
+                  // Add your logic for when this item is tapped.
+                },
+              ),
+              ListTile(
+                horizontalTitleGap: 0,
+                leading: Icon(
+                  Icons.settings,
+                  color: theme.colorScheme.secondary,
+                ),
+                title: Text('Settings', style: theme.textTheme.bodyLarge,),
+                onTap: () {
+                  // Add your logic for when this item is tapped.
+                },
+              ),
+              ListTile(
+                horizontalTitleGap: 0,
+                leading: Icon(
+                  Icons.info_outline_rounded,
+                  color: theme.colorScheme.secondary,
+                ),
+                title: Text('About', style: theme.textTheme.bodyLarge,),
+                onTap: () {
+                  // Add your logic for when this item is tapped.
+                },
+              ),
+              ListTile(
+                horizontalTitleGap: 0,
+                leading: Icon(
+                  Icons.logout,
+                  color: theme.colorScheme.secondary,
+                ),
+                title: Text('Log Out', style: theme.textTheme.bodyLarge,),
+                onTap: () {
+                  context.read<LoginCubit>().signOut();
+                  Navigator.pushNamedAndRemoveUntil(context, Routes.signIn, (route) => false);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
       backgroundColor: theme.colorScheme.background,
       body: SafeArea(
         child: SingleChildScrollView(
@@ -85,7 +167,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     GestureDetector(
-                      onTap: () => Navigator.pop(context),
+                      onTap: () {
+                        print("OnTap");
+                        _scaffoldKey.currentState!.openEndDrawer();
+                      },
                       child: Container(
                         padding:
                             EdgeInsets.symmetric(horizontal: 13, vertical: 14),
@@ -94,64 +179,64 @@ class _HomeScreenState extends State<HomeScreen> {
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Icon(
-                          Icons.notifications_none,
+                          Icons.dashboard,
                           color: theme.colorScheme.secondary,
                         ),
                       ),
                     ),
                   ],
                 ),
+                // SizedBox(
+                //   height: 18.h,
+                // ),
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //   children: [
+                //     GestureDetector(
+                //       onTap: (){
+                //         Navigator.pushNamed(context, Routes.searchScreen);
+                //       },
+                //       child: Container(
+                //         width: 267.w,
+                //         padding: EdgeInsets.symmetric(
+                //             horizontal: 18.w, vertical: 19.h),
+                //         decoration: BoxDecoration(
+                //           color: theme.colorScheme.primary,
+                //           borderRadius: BorderRadius.circular(20),
+                //         ),
+                //         child: Row(
+                //           children: [
+                //             SvgPicture.asset("assets/icons/search.svg"),
+                //             SizedBox(
+                //               width: 19.w,
+                //             ),
+                //             Text(
+                //               "What do you want to order?",
+                //               style: theme.textTheme.bodySmall,
+                //             ),
+                //           ],
+                //         ),
+                //       ),
+                //     ),
+                //     GestureDetector(
+                //       onTap: () => Navigator.pop(context),
+                //       child: Container(
+                //         padding: EdgeInsets.symmetric(
+                //             horizontal: 13, vertical: 19.h),
+                //         decoration: BoxDecoration(
+                //           color: theme.colorScheme.primary,
+                //           borderRadius: BorderRadius.circular(15),
+                //         ),
+                //         child: Icon(
+                //           Icons.settings,
+                //           color: theme.colorScheme.secondary,
+                //         ),
+                //       ),
+                //     ),
+                //   ],
+                // ),
                 SizedBox(
-                  height: 18.h,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    GestureDetector(
-                      onTap: (){
-                        Navigator.pushNamed(context, Routes.searchScreen);
-                      },
-                      child: Container(
-                        width: 267.w,
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 18.w, vertical: 19.h),
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.primary,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Row(
-                          children: [
-                            SvgPicture.asset("assets/icons/search.svg"),
-                            SizedBox(
-                              width: 19.w,
-                            ),
-                            Text(
-                              "What do you want to order?",
-                              style: theme.textTheme.bodySmall,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 13, vertical: 19.h),
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.primary,
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: Icon(
-                          Icons.settings,
-                          color: theme.colorScheme.secondary,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 20.h,
+                  height: 20,
                 ),
                 SizedBox(
                   height: 160.h,
@@ -176,14 +261,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 SizedBox(
-                  height: 20.h,
+                  height: 20,
                 ),
                 Text(
                   "Popular Picks",
                   style: theme.textTheme.titleSmall,
                 ),
                 SizedBox(
-                  height: 20.h,
+                  height: 20,
                 ),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
@@ -204,14 +289,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 SizedBox(
-                  height: 20.h,
+                  height: 20,
                 ),
                 Text(
                   "Menu Items",
                   style: theme.textTheme.titleMedium,
                 ),
                 SizedBox(
-                  height: 15.h,
+                  height: 15,
                 ),
                 BlocConsumer<HomeCardCubit, HomeCardState>(builder: (context, state){
                   if(state is HomeCardLoadingState){

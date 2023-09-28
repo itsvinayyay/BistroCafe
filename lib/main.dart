@@ -11,6 +11,7 @@ import 'package:food_cafe/cubits/login_cubit/login_cubit.dart';
 import 'package:food_cafe/cubits/login_cubit/login_state.dart';
 import 'package:food_cafe/cubits/store_additem_cubit/additem_cubit.dart';
 import 'package:food_cafe/cubits/store_menuitem_cubit/menuItem_cubit.dart';
+import 'package:food_cafe/cubits/store_orders_cubit/store_orders_cubit.dart';
 import 'package:food_cafe/cubits/theme_cubit/theme_cubit.dart';
 import 'package:food_cafe/routes/generated_routes.dart';
 import 'package:food_cafe/routes/named_routes.dart';
@@ -39,8 +40,12 @@ void main() async{
           BlocProvider(create: (context) => BillingCubit()),
           BlocProvider(create: (context) => BillingPaymentCubit()),
           BlocProvider(create: (context) => BillingDineSelectionCubit()),
-          BlocProvider(create: (context) => AddItemCubit()),
-          BlocProvider(create: (context) => MenuItems()),
+          BlocProvider(create: (context) => AddItemCubit()),//Store
+          BlocProvider(create: (context) => MenuItems()),//Store
+          BlocProvider(create: (context) => RequestedOrdersCubit()), //Store
+          BlocProvider(create: (context) => OrdersTabCubit()), //Store
+          BlocProvider(create: (context) => CurrentOrdersCubit()), //Store
+          BlocProvider(create: (context) => PastOrdersCubit()), //Store
 
 
 
@@ -61,24 +66,24 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       onGenerateRoute: GeneratedRoutes.generateRoutes,
       theme: theme,
-      initialRoute: Routes.store_OrdersScreen,
-      // home: BlocBuilder<LoginCubit,LoginState>(
-      //   buildWhen: (oldstate, newstate){
-      //     return oldstate is LoginInitialState;
-      //   },
-      //   builder: (context, state){
-      //     if(state is LoginLoggedInState){
-      //       return BottomNavBar();
-      //     }
-      //     else if(state is LoginLoggedOutState){
-      //       return SignIn();
-      //     }
-      //     else if(state is LoginuserNotVerifiedState){
-      //       return SignUpVerification();
-      //     }
-      //     return OnBoard();
-      //   },
-      // )
+      // initialRoute: Routes.bottomNav,
+      home: BlocBuilder<LoginCubit,LoginState>(
+        buildWhen: (oldstate, newstate){
+          return oldstate is LoginInitialState;
+        },
+        builder: (context, state){
+          if(state is LoginLoggedInState){
+            return BottomNavBar();
+          }
+          else if(state is LoginLoggedOutState){
+            return SignIn();
+          }
+          else if(state is LoginuserNotVerifiedState){
+            return SignUpVerification();
+          }
+          return OnBoard();
+        },
+      )
 
 
     );
