@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:food_cafe/cubits/billing_cubit/billing_state.dart';
+import 'package:food_cafe/cubits/login_cubit/login_cubit.dart';
 import 'package:food_cafe/cubits/store_additem_cubit/addImage_state.dart';
 import 'package:food_cafe/cubits/store_additem_cubit/additem_cubit.dart';
 import 'package:food_cafe/cubits/store_additem_cubit/additem_state.dart';
@@ -29,9 +30,23 @@ class _store_AddItemsScreenState extends State<store_AddItemsScreen> {
   final TextEditingController _itemIDController = TextEditingController();
   File? imageFile;
   bool isAvailable = false;
-
   String selectedCategory = 'Appetizers';
+  late String storeID;
+  late String ID;
 
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    initializeAddMenuItems();
+  }
+
+
+  Future<void> initializeAddMenuItems() async{
+    ID = context.read<LoginCubit>().getEntryNo();
+    storeID = await context.read<LoginCubit>().getStoreID(ID);
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,8 +74,32 @@ class _store_AddItemsScreenState extends State<store_AddItemsScreen> {
                     style: theme.textTheme.headlineLarge,
                   ),
                 ),
+                Row(
+                  children: [
+                    Text(
+                      "Menu Items will be added to store ",
+                      style: theme.textTheme.bodySmall,
+                    ),
+                    FutureBuilder<String>(
+                      future: context.read<LoginCubit>().getStoreID(ID),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          // Display a loading indicator while fetching storeID
+                          return Text('Loading...', style: theme.textTheme.bodySmall,);
+                        } else if (snapshot.hasError) {
+                          // Handle error if any
+                          return Text("Error: ${snapshot.error}", style: theme.textTheme.bodySmall,);
+                        } else {
+                          // Display your content once storeID is fetched
+                          return Text('${snapshot.data.toString()}.', style: theme.textTheme.bodySmall,);
+                        }
+                      },
+                    ),
+                  ],
+                ),
+                Text("The Item ID will be generated automatically relative to the previous Item ID.", style: theme.textTheme.bodySmall,),
                 SizedBox(
-                  height: 20,
+                  height: 10,
                 ),
                 Form(
                   key: _formKey,
@@ -187,33 +226,6 @@ class _store_AddItemsScreenState extends State<store_AddItemsScreen> {
                       SizedBox(
                         height: 20,
                       ),
-                      subHeading(theme: theme, heading: "Item ID"),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      TextFormField(
-                        controller: _itemIDController,
-                        decoration: InputDecoration(
-                          fillColor: theme.colorScheme.primary,
-                          filled: true,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(20),
-                              borderSide: BorderSide(
-                                  width: 0, color: theme.colorScheme.primary)),
-                          hintText: "Enter Item ID",
-                          hintStyle: theme.textTheme.bodyMedium,
-                          contentPadding: EdgeInsets.symmetric(
-                              horizontal: 28.w, vertical: 22.h),
-                        ),
-                        style: theme.textTheme.bodyLarge,
-                        cursorColor: theme.colorScheme.secondary,
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
                       subHeading(theme: theme, heading: "Availability"),
                       SizedBox(
                         height: 10,
@@ -223,12 +235,14 @@ class _store_AddItemsScreenState extends State<store_AddItemsScreen> {
                         child: BlocBuilder<AvailableCubit, bool>(
                             builder: (context, state) {
                           return GestureDetector(
-                            onTap: ()
-                            {
+                            onTap: () {
+                              bool newvalue = state == true ? false : true;
                               context
                                   .read<AvailableCubit>()
-                                  .toggleAvailibility(!state);
-                              isAvailable = state;
+                                  .toggleAvailibility(newvalue);
+                              isAvailable = newvalue;
+
+                              print("value of isAvailable $isAvailable");
                             },
                             child: Container(
                               width: 150.w,
@@ -348,56 +362,42 @@ class _store_AddItemsScreenState extends State<store_AddItemsScreen> {
                 ),
                 BlocConsumer<AddItemCubit, AddItemState>(
                     builder: (context, state) {
-                      if (state is AddItemLoadingState) {
-                        return Center(
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                          ),
-                        );
-                      } else if (state is AddItemImageUploadedState) {
-                        return Text("Image Uploaded!");
-                      } else if (state is AddItemInitialState ||
-                          state is AddItemErrorState ||
-                          state is AddItemImageUpload_ErrorState) {
-                        String itemName = _itemnameController.text;
-                        String price = _mrpController.text;
-                        String itemID = _itemIDController.text;
-                        // String entered_Category =
-                        //     context.read<CategoryCubit>().state;
-                        // bool availability =
-                        //     context.read<AvailableCubit>().state;
-
-                        return Center(
-                            child: customButton(
-                                context: context,
-                                theme: theme,
-                                onPressed: () => context
-                                    .read<AddItemCubit>()
-                                    .uploadItemtoFireStore(
-                                        name: itemName,
-                                        category: selectedCategory,
-                                        mrp: int.parse(price),
-                                        itemID: itemID,
-                                        isavailable: isAvailable,
-                                        imageFile: imageFile!,
-                                        fileName: itemID),
-                                title: "Add Item"));
-                      }
-                      return Text('Waiting!');
-                    },
-                    listener: (context, state) {
-                      if(state is AddItemImageUpload_ErrorState){
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(state.error)));
-                      }
-                      else if(state is AddItemErrorState){
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(state.error)));
-                      }
-                      else if(state is AddItemUploadedState){
-                        Navigator.pushNamed(context, Routes.signUpSuccess);
-                      }
-                    }),
+                  if (state is AddItemLoadingState) {
+                    return Center(
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                      ),
+                    );
+                  } else if (state is AddItemImageUploadedState) {
+                    return Text("Image Uploaded!");
+                  }
+                  String itemName = _itemnameController.text;
+                  String price = _mrpController.text;
+                  return Center(
+                      child: customButton(
+                          context: context,
+                          theme: theme,
+                          onPressed: () => context
+                              .read<AddItemCubit>()
+                              .uploadItemtoFireStore(
+                            storeID: storeID,
+                            name: itemName,
+                            category: selectedCategory,
+                            mrp: int.parse(price),
+                            isavailable: isAvailable,
+                            imageFile: imageFile!,),
+                          title: "Add Item"));
+                }, listener: (context, state) {
+                  if (state is AddItemImageUpload_ErrorState) {
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(SnackBar(content: Text(state.error)));
+                  } else if (state is AddItemErrorState) {
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(SnackBar(content: Text(state.error)));
+                  } else if (state is AddItemUploadedState) {
+                    Navigator.pushNamedAndRemoveUntil(context, Routes.store_ItemAdded, (route) => false);
+                  }
+                }),
               ],
             ),
           ),

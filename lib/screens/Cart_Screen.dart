@@ -20,6 +20,7 @@ class CartScreen extends StatefulWidget {
 
 class _CartScreenState extends State<CartScreen> {
   late String entryNo;
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   // late Map<String, dynamic> localState;
 
@@ -44,6 +45,7 @@ class _CartScreenState extends State<CartScreen> {
     final themeMode = context.watch<ThemeCubit>().state;
     final ThemeData theme = themeMode == MyTheme.dark ? darkTheme : lightTheme;
     return Scaffold(
+      key: _scaffoldKey,
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: theme.colorScheme.secondary,
@@ -108,7 +110,7 @@ class _CartScreenState extends State<CartScreen> {
                               'Item ID: ${cartItem.itemID}, Quantity: $quantity');
                           return Cart_FoodCard(
                             theme: theme,
-                            context: context,
+                            context: _scaffoldKey.currentContext!,
                             item: cartItem,
                             decreaseQuantity: () {
                               cartLocalState.removeItemsfromLocal(

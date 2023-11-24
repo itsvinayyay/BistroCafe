@@ -9,11 +9,13 @@ class LoginLoadingState extends LoginState{}
 
 class LoginLoggedInState extends LoginState{
   final User firebaseUser;
-  LoginLoggedInState({required this.firebaseUser});
+  final bool isUser;
+  LoginLoggedInState({required this.firebaseUser, required this.isUser});
 }
 class LoginrequiredVerificationState extends LoginState{
   final User firebaseUser;
-  LoginrequiredVerificationState({required this.firebaseUser});
+  final bool isUser;
+  LoginrequiredVerificationState({required this.firebaseUser, required this.isUser});
 }
 
 
@@ -30,6 +32,7 @@ class LoginErrorState extends LoginState{
   String error;
   LoginErrorState({required this.error});
 }
+
 
 
 

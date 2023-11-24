@@ -47,7 +47,9 @@ class OnBoard extends StatelessWidget {
               SizedBox(
                 height: 42.h,
               ),
-              customButton(context: context, theme: theme, onPressed: (){}, title: "Next")
+              customButton(context: context, theme: theme, onPressed: (){
+                Navigator.pushNamed(context, Routes.onboard2);
+              }, title: "Next")
             ],
           ),
         ),

@@ -23,7 +23,7 @@ class _SignUpState extends State<SignUp> {
   TextEditingController _confirmPasswordController = TextEditingController();
 
   //TODO: Make these variables more relevant
-  bool ispasswordVisible = true;
+  bool ispasswordVisible = false;
   bool isconfirmpasswordVisible = true;
 
   @override
@@ -72,14 +72,20 @@ class _SignUpState extends State<SignUp> {
                   height: 12.h,
                 ),
                 customTextFormField(
-                    theme: theme,
-                    hintText: "Password",
-                    controller: _passwordController,
-                    prefixIcon: "lock",
-                    onTap: () => setState(() {
-                          ispasswordVisible = !ispasswordVisible;
-                        }),
-                    obscure: ispasswordVisible),
+                  theme: theme,
+                  hintText: "Password",
+                  controller: _passwordController,
+                  prefixIcon: "lock",
+                  // onTap: () => setState(() {
+                  //       ispasswordVisible = !ispasswordVisible;
+                  //     }),
+                  onTap: () {
+                    BlocProvider.of<PasswordVisibility>(context)
+                        .toggleVisibility();
+                    print("TAPPED");
+                  },
+                  obscure: context.watch<PasswordVisibility>().state,
+                ),
                 SizedBox(
                   height: 12.h,
                 ),
@@ -98,9 +104,7 @@ class _SignUpState extends State<SignUp> {
                 BlocConsumer<LoginCubit, LoginState>(
                   listener: (context, state) {
                     if (state is LoginrequiredVerificationState) {
-                      print("State is LoginVerification!!!!!!");
-                      String entryNo = getrollNo(state.firebaseUser.email!);
-                      Navigator.pushNamed(context, Routes.signupVerification, arguments: entryNo);
+                      Navigator.pushNamed(context, Routes.signupVerification);
                     } else if (state is LoginErrorState) {
                       ScaffoldMessenger.of(context)
                           .showSnackBar(SnackBar(content: Text(state.error)));
@@ -112,23 +116,14 @@ class _SignUpState extends State<SignUp> {
                         child: CircularProgressIndicator(),
                       );
                     }
-                    // } else if (state is LoginnotVerifiedState) {
-                    //   print("State is Login Not Verified !!!!!!");
-                    //   return customButton(
-                    //       context: context,
-                    //       theme: theme,
-                    //       onPressed: () {
-                    //         BlocProvider.of<LoginCubit>(context)
-                    //             .verifyUser();
-                    //       },
-                    //       title: "Verify");
-                    // }
                     return customButton(
                         context: context,
                         theme: theme,
                         onPressed: () {
                           BlocProvider.of<LoginCubit>(context).signupwith_Email(
-                              _emailController.text, _passwordController.text, _nameController.text);
+                              _emailController.text,
+                              _passwordController.text,
+                              _nameController.text);
                         },
                         title: "Create Account");
                   },
@@ -151,13 +146,5 @@ class _SignUpState extends State<SignUp> {
         ),
       ),
     );
-  }
-  String getrollNo(String email) {
-    String rollNo = "";
-    for (int i = 0; i < 8; i++) {
-      rollNo = rollNo + email[i];
-    }
-    rollNo.toLowerCase();
-    return rollNo;
   }
 }

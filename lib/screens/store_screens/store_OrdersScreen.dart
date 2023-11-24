@@ -25,6 +25,7 @@ class _store_OrdersScreenState extends State<store_OrdersScreen> {
     context.read<PastOrdersCubit>().startListening("SMVDU101");
     context.read<RequestedOrdersCubit>().startListening("SMVDU101");
   }
+
   @override
   void dispose() {
     // TODO: implement dispose
@@ -110,7 +111,11 @@ class _store_OrdersScreenState extends State<store_OrdersScreen> {
                             shrinkWrap: true,
                             itemCount: state.length,
                             itemBuilder: (context, index) {
-                              return pastOrder_Card(theme: theme, context: context, pastOrders_Model: state[index], onTap: (){});
+                              return pastOrder_Card(
+                                  theme: theme,
+                                  context: context,
+                                  pastOrders_Model: state[index],
+                                  onTap: () {});
                             });
                       });
                     } else if (state == 1) {
@@ -127,7 +132,10 @@ class _store_OrdersScreenState extends State<store_OrdersScreen> {
                                   currentOrders_Model: state[index],
                                   prepared: () {
                                     //TODO Add a notification functionality to notify user!
-                                    context.read<CurrentOrdersCubit>().currentOrder_prepared(state[index].trxID!);
+                                    context
+                                        .read<CurrentOrdersCubit>()
+                                        .currentOrder_prepared(
+                                            state[index].trxID!);
                                   });
                             });
                       });
@@ -149,11 +157,15 @@ class _store_OrdersScreenState extends State<store_OrdersScreen> {
                                     //TODO Change the hardcoded SMVDU101TRX1!
                                     context
                                         .read<RequestedOrdersCubit>()
-                                        .accept_requested_Order(state[index].orderID!);
+                                        .accept_requested_Order(
+                                            state[index].orderID!);
                                   },
                                   reject: () {
                                     //TODO Add Notification functionlity to inform the user
-                                    context.read<RequestedOrdersCubit>().reject_requested_order(state[index].orderID!);
+                                    context
+                                        .read<RequestedOrdersCubit>()
+                                        .reject_requested_order(
+                                            state[index].orderID!);
                                   });
                             });
                       });
@@ -175,6 +187,10 @@ class _store_OrdersScreenState extends State<store_OrdersScreen> {
     required PastOrders_Model pastOrders_Model,
     required VoidCallback onTap,
   }) {
+    String time =
+    DateFormat('hh:mm a').format(pastOrders_Model.time!.toDate());
+    String date =
+    DateFormat('d MMM y').format(pastOrders_Model.time!.toDate());
     return GestureDetector(
       onTap: onTap,
       child: Card(
@@ -222,14 +238,20 @@ class _store_OrdersScreenState extends State<store_OrdersScreen> {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        pastOrders_Model.isDineIn == true ? "Dine-In" : "Dine-Out",
+                        pastOrders_Model.isDineIn == true
+                            ? "Dine-In"
+                            : "Dine-Out",
                         style: theme.textTheme.titleSmall,
                         // textAlign: TextAlign.right,
                       ),
+                      if(pastOrders_Model.isDineIn == false)
+                        Text(
+                          pastOrders_Model.hostelName!,
+                          style: theme.textTheme.titleSmall,
+                          // textAlign: TextAlign.right,
+                        ),
                       Text(
-                        //TODO change timestamp
-
-                        "26 Jan 2023",
+                        "$date | $time",
                         style: theme.textTheme.bodySmall,
                         // textAlign: TextAlign.right,
                       ),
@@ -286,7 +308,8 @@ class _store_OrdersScreenState extends State<store_OrdersScreen> {
                     width: 10,
                   ),
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 2),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 10.w, vertical: 2),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(width: 2, color: Colors.green),
@@ -317,6 +340,10 @@ class _store_OrdersScreenState extends State<store_OrdersScreen> {
     required CurrentOrders_Model currentOrders_Model,
     required VoidCallback prepared,
   }) {
+    String time =
+        DateFormat('hh:mm a').format(currentOrders_Model.time!.toDate());
+    String date =
+        DateFormat('d MMM y').format(currentOrders_Model.time!.toDate());
     return Card(
       elevation: 8,
       shadowColor: theme.colorScheme.secondary,
@@ -374,6 +401,21 @@ class _store_OrdersScreenState extends State<store_OrdersScreen> {
                     ),
                   ],
                 ),
+                if (currentOrders_Model.isDineIn == false)
+                  Row(
+                    children: [
+                      Text(
+                        "Hostel Name: ",
+                        style: theme.textTheme.labelMedium,
+                        // textAlign: TextAlign.right,
+                      ),
+                      Text(
+                        currentOrders_Model.hostelName!,
+                        style: theme.textTheme.bodyLarge,
+                        // textAlign: TextAlign.right,
+                      ),
+                    ],
+                  ),
                 Row(
                   children: [
                     Text(
@@ -382,7 +424,21 @@ class _store_OrdersScreenState extends State<store_OrdersScreen> {
                       // textAlign: TextAlign.right,
                     ),
                     Text(
-                      "26 Jan, 2023",
+                      date,
+                      style: theme.textTheme.bodyLarge,
+                      // textAlign: TextAlign.right,
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Text(
+                      "Time: ",
+                      style: theme.textTheme.labelMedium,
+                      // textAlign: TextAlign.right,
+                    ),
+                    Text(
+                      time,
                       style: theme.textTheme.bodyLarge,
                       // textAlign: TextAlign.right,
                     ),
@@ -454,12 +510,16 @@ class _store_OrdersScreenState extends State<store_OrdersScreen> {
                           EdgeInsets.symmetric(horizontal: 10.w, vertical: 2),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(width: 2, color: Colors.green),
+                        border: Border.all(
+                            width: 2,
+                            color: currentOrders_Model.isCash == true
+                                ? Colors.blue
+                                : Colors.red),
                       ),
                       child: Text(
-                        currentOrders_Model.isPaid == true ? "Paid" : "UnPaid",
+                        currentOrders_Model.isCash == true ? "Cash" : "Online",
                         style: TextStyle(
-                          color: Colors.green,
+                          color: Colors.blue,
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w700,
                           fontFamily: 'BentonSans_Bold',
@@ -553,8 +613,13 @@ class _store_OrdersScreenState extends State<store_OrdersScreen> {
                       style: theme.textTheme.titleSmall,
                       // textAlign: TextAlign.right,
                     ),
+                    if (requestedOrders_Model.isDineIn == false)
+                      Text(
+                        requestedOrders_Model.hostelName!,
+                        style: theme.textTheme.titleSmall,
+                        // textAlign: TextAlign.right,
+                      ),
                     Text(
-                      //TODO change timestamp
 
                       "$date | $time",
                       style: theme.textTheme.bodySmall,
@@ -598,18 +663,18 @@ class _store_OrdersScreenState extends State<store_OrdersScreen> {
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
                             width: 2,
-                            color: requestedOrders_Model.isPaid == false
+                            color: requestedOrders_Model.isCash == false
                                 ? Colors.red
-                                : Colors.green),
+                                : Colors.blue),
                       ),
                       child: Text(
-                        requestedOrders_Model.isPaid == false
-                            ? "UnPaid"
-                            : "Paid",
+                        requestedOrders_Model.isCash == false
+                            ? "Online"
+                            : "Cash",
                         style: TextStyle(
-                          color: requestedOrders_Model.isPaid == false
+                          color: requestedOrders_Model.isCash == false
                               ? Colors.red
-                              : Colors.green,
+                              : Colors.blue,
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w700,
                           fontFamily: 'BentonSans_Bold',
@@ -692,7 +757,7 @@ class _store_OrdersScreenState extends State<store_OrdersScreen> {
             SizedBox(
               width: 90.w,
               child: Text(
-                foodItem['ItemName'],
+                foodItem['Name'],
                 style: theme.textTheme.labelSmall,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 3,

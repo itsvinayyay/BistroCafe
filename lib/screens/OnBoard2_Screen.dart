@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food_cafe/cubits/theme_cubit/theme_cubit.dart';
+import 'package:food_cafe/routes/named_routes.dart';
 import 'package:food_cafe/theme.dart';
 
 class OnBoard2 extends StatelessWidget {
@@ -45,7 +46,9 @@ class OnBoard2 extends StatelessWidget {
                 height: 42.h,
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pushNamed(context, Routes.signIn);
+                },
                 child: Text(
                   "Next",
                   style: theme.textTheme.titleSmall,

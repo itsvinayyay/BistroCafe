@@ -9,6 +9,7 @@ import 'package:food_cafe/screens/Home_Screen.dart';
 import 'package:food_cafe/screens/Notifications_Screen.dart';
 import 'package:food_cafe/screens/OnBoard2_Screen.dart';
 import 'package:food_cafe/screens/OnBoard_Screen.dart';
+import 'package:food_cafe/screens/OrderPlaced_Screen.dart';
 import 'package:food_cafe/screens/ProfilePage.dart';
 import 'package:food_cafe/screens/ResetPassword_Screen.dart';
 import 'package:food_cafe/screens/Search_Screen.dart';
@@ -19,8 +20,10 @@ import 'package:food_cafe/screens/SignUpVerification_Screen.dart';
 import 'package:food_cafe/screens/SignUp_Screen.dart';
 import 'package:food_cafe/screens/store_screens/store_AddMenuItems.dart';
 import 'package:food_cafe/screens/store_screens/store_HomeScreen.dart';
+import 'package:food_cafe/screens/store_screens/store_ItemaddedScreen.dart';
 import 'package:food_cafe/screens/store_screens/store_MenuItems.dart';
 import 'package:food_cafe/screens/store_screens/store_OrdersScreen.dart';
+import 'package:food_cafe/screens/store_screens/store_SignInScreen.dart';
 
 class GeneratedRoutes {
   static Route generateRoutes(RouteSettings routeSettings) {
@@ -91,6 +94,15 @@ class GeneratedRoutes {
       case Routes.store_OrdersScreen:
         return MaterialPageRoute(
             builder: (context) => store_OrdersScreen(), settings: routeSettings);
+      case Routes.store_SignIn:
+        return MaterialPageRoute(
+            builder: (context) => store_SignIn(), settings: routeSettings);
+      case Routes.store_ItemAdded:
+        return MaterialPageRoute(
+            builder: (context) => store_ItemAdded(), settings: routeSettings);
+      case Routes.orderPlaced:
+        return MaterialPageRoute(
+            builder: (context) => OrderPlacedScreen(), settings: routeSettings);
       default:
         return error_Screen();
     }

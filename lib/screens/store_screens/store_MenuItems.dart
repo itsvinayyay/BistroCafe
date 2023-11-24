@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:food_cafe/cubits/login_cubit/login_cubit.dart';
 import 'package:food_cafe/cubits/store_menuitem_cubit/menuItem_cubit.dart';
 import 'package:food_cafe/cubits/theme_cubit/theme_cubit.dart';
 import 'package:food_cafe/data/models/store_OrderCard_Models.dart';
@@ -15,14 +16,22 @@ class store_MenuItems extends StatefulWidget {
 }
 
 class _store_MenuItemsState extends State<store_MenuItems> {
-  String storeNumber = "101";
+  late String storeID;
+  late String ID;
   @override
   void initState() {
     // TODO: implement initState
 
     super.initState();
+    initializeMenuItemData();
 
-    context.read<MenuItems>().startListening(storeNumber);
+  }
+
+  Future<void> initializeMenuItemData() async {
+    ID = context.read<LoginCubit>().getEntryNo();
+    storeID = await context.read<LoginCubit>().getStoreID(ID);
+
+    context.read<MenuItems>().startListening(storeID);
   }
 
   @override
@@ -57,12 +66,28 @@ class _store_MenuItemsState extends State<store_MenuItems> {
                     style: theme.textTheme.headlineLarge,
                   ),
                 ),
-                SizedBox(
-                  width: 239.w,
-                  child: Text(
-                    "The Menu Items for store SMVDU101",
-                    style: theme.textTheme.bodySmall,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      "The Menu Items for store ",
+                      style: theme.textTheme.bodySmall,
+                    ),
+                    FutureBuilder<String>(
+                      future: context.read<LoginCubit>().getStoreID(ID),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          // Display a loading indicator while fetching storeID
+                          return Text('Loading...', style: theme.textTheme.bodySmall,);
+                        } else if (snapshot.hasError) {
+                          // Handle error if any
+                          return Text("Error: ${snapshot.error}", style: theme.textTheme.bodySmall,);
+                        } else {
+                          // Display your content once storeID is fetched
+                          return Text(snapshot.data.toString(), style: theme.textTheme.bodySmall,);
+                        }
+                      },
+                    ),
+                  ],
                 ),
                 const SizedBox(
                   height: 20,
@@ -75,11 +100,11 @@ class _store_MenuItemsState extends State<store_MenuItems> {
                         theme: theme,
                         context: context,
                         onDismissed: (direction) {
-                          context.read<MenuItems>().deleteItem(menuItem.itemID!, storeNumber);
+                          context.read<MenuItems>().deleteItem(menuItem.itemID!, "SMVDU101");
                         },
                         switchValue: menuItem.isavailable!,
                         onChanged: (newValue) {
-                          context.read<MenuItems>().toggleAvailability(menuItem.itemID!, newValue, storeNumber);
+                          context.read<MenuItems>().toggleAvailability(menuItem.itemID!, newValue, "SMVDU101");
                         },
                       menuItem: menuItem,
                     );

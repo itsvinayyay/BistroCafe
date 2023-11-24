@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -16,24 +18,53 @@ class SignUpVerification extends StatefulWidget {
 }
 
 class _SignUpVerificationState extends State<SignUpVerification> {
-  String? rollNo;
+  late String entryNo;
+  bool isUser = true;
+  Timer? _timer;
+  bool _isButtonActive = false;
+
+  void startTimer() {
+    const duration = Duration(seconds: 30);
+    _timer = Timer(duration, () {
+      print("Completed!");
+      context.read<TimerCubit>().enableResendButton();
+    });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    entryNo = context.read<LoginCubit>().getEntryNo();
+    final state = context.read<LoginCubit>().state;
+    if(state is LoginrequiredVerificationState){
+      isUser = state.isUser;
+    }
+    startTimer();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    rollNo = ModalRoute.of(context)!.settings.arguments as String;
+
+
     final themeMode = context.watch<ThemeCubit>().state;
     final ThemeData theme = themeMode == MyTheme.dark ? darkTheme : lightTheme;
     return Scaffold(
       backgroundColor: theme.colorScheme.background,
       body: SafeArea(
         child: SingleChildScrollView(
+          physics: BouncingScrollPhysics(),
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 25.w),
+            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 48),
             child: Column(
               children: [
-                SizedBox(
-                  height: 48.h,
-                ),
                 Image.asset("assets/images/logo.png"),
                 Text(
                   "Pure Flavours",
@@ -59,7 +90,7 @@ class _SignUpVerificationState extends State<SignUpVerification> {
                           style: theme.textTheme.bodyLarge,
                         ),
                         Text(
-                          rollNo!,
+                          entryNo,
                           style: theme.textTheme.labelLarge,
                         ),
                       ],
@@ -87,11 +118,9 @@ class _SignUpVerificationState extends State<SignUpVerification> {
                 BlocConsumer<LoginCubit, LoginState>(
                   listener: (context, state) {
                     if (state is LoginLoggedInState) {
-                      print("Successfully Logged In!!!!!!!!!");
                       Navigator.pushNamedAndRemoveUntil(
-                          context, Routes.signUpSuccess, (route) => false);
-                    }
-                    else if (state is LoginuserNotVerifiedState) {
+                          context, Routes.signUpSuccess, (route) => false, arguments: isUser);
+                    } else if (state is LoginuserNotVerifiedState) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text("You're not verified!"),
@@ -113,29 +142,94 @@ class _SignUpVerificationState extends State<SignUpVerification> {
                         ),
                       );
                     }
-                    // else if(state is LoginrequiredVerificationState){
-                    //   return customButton(
-                    //       context: context,
-                    //       theme: theme,
-                    //       onPressed: () {
-                    //         BlocProvider.of<LoginCubit>(context).verifyUser();
-                    //       },
-                    //       title: "Verify");
-                    // }
                     return customButton(
                         context: context,
                         theme: theme,
                         onPressed: () {
-                          BlocProvider.of<LoginCubit>(context)
-                              .verifyUser(rollNo!);
+                          isUser == true ? BlocProvider.of<LoginCubit>(context)
+                              .verifyUser(entryNo) : BlocProvider.of<LoginCubit>(context)
+                              .verifycafeOwner(entryNo);
                         },
                         title: "Verify");
                   },
                 ),
+                SizedBox(
+                  height: 20,
+                ),
+                Text(
+                  "Didn't received verification mail?",
+                  style: TextStyle(
+                      color: Color(0XFF6B50F6),
+                      fontWeight: FontWeight.w400,
+                      fontFamily: "BentonSans_Medium",
+                      fontSize: 12.sp,
+                      decoration: TextDecoration.underline),
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Resend button will be activated in ",
+                      style: TextStyle(
+                        color: Color(0XFF6B50F6),
+                        fontWeight: FontWeight.w400,
+                        fontFamily: "BentonSans_Medium",
+                        fontSize: 12.sp,
+                      ),
+                    ),
+                    buildTimer(),
+                  ],
+                ),
+                BlocBuilder<TimerCubit, bool>(
+                  builder: (context, state) {
+                    if (state == true) {
+                      return BlocProvider(
+                        create: (context) => ResendVerificationCubit(),
+                        child: BlocBuilder<ResendVerificationCubit, bool>(
+                          builder: (context, state) {
+                            if(state == false){
+                              return TextButton(
+                                onPressed: () {
+                                  context
+                                      .read<ResendVerificationCubit>()
+                                      .resendVerification();
+                                },
+                                // Button is inactive when _isButtonActive is false.
+                                child: Text(
+                                  "Resend",
+                                  style: theme.textTheme.labelLarge,
+                                ),
+                              );
+                            }
+                            return Text(
+                              "Sent",
+                              style: theme.textTheme.labelMedium,
+                            );
+                          },
+                        ),
+                      );
+                    }
+                    return Text(
+                      "Please Wait...",
+                      style: theme.textTheme.labelMedium,
+                    );
+                  },
+                )
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  TweenAnimationBuilder<double> buildTimer() {
+    return TweenAnimationBuilder(
+      tween: Tween(begin: 30.00, end: 0.00),
+      duration: Duration(seconds: 30),
+      builder: (BuildContext context, double value, Widget? child) => Text(
+        "00:${value.toInt()}",
       ),
     );
   }

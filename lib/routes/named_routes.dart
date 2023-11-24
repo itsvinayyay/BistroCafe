@@ -21,4 +21,7 @@ class Routes {
   static const String store_addItemsScreen  = "./store_addItemsScreen";
   static const String store_menuItems  = "./store_menuItems";
   static const String store_OrdersScreen  = "./store_OrdersScreen";
+  static const String store_SignIn  = "./store_SignIn";
+  static const String store_ItemAdded  = "./store_ItemAdded";
+  static const String orderPlaced  = "./orderPlaced";
 }

@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -18,12 +19,19 @@ import 'package:food_cafe/routes/named_routes.dart';
 import 'package:food_cafe/screens/OnBoard_Screen.dart';
 import 'package:food_cafe/screens/SignIn_Screen.dart';
 import 'package:food_cafe/screens/SignUpVerification_Screen.dart';
+import 'package:food_cafe/screens/store_screens/store_HomeScreen.dart';
 import 'package:food_cafe/theme.dart';
 
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  print(message.notification!.title.toString());
+}
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   runApp(
     ScreenUtilInit(
       designSize: const Size(375, 812),
@@ -40,15 +48,15 @@ void main() async{
           BlocProvider(create: (context) => BillingCubit()),
           BlocProvider(create: (context) => BillingPaymentCubit()),
           BlocProvider(create: (context) => BillingDineSelectionCubit()),
-          BlocProvider(create: (context) => AddItemCubit()),//Store
-          BlocProvider(create: (context) => MenuItems()),//Store
+          BlocProvider(create: (context) => TimerCubit(),),
+          BlocProvider(create: (context) => AddItemCubit()), //Store
+          BlocProvider(create: (context) => MenuItems()), //Store
           BlocProvider(create: (context) => RequestedOrdersCubit()), //Store
           BlocProvider(create: (context) => OrdersTabCubit()), //Store
           BlocProvider(create: (context) => CurrentOrdersCubit()), //Store
-          BlocProvider(create: (context) => PastOrdersCubit()), //Store
-
-
-
+          BlocProvider(create: (context) => PastOrdersCubit()),
+          BlocProvider(create: (context) => SignInErrorsCubit(),),
+          BlocProvider(create: (context) => PasswordVisibility()),//Store
         ], child: MyApp());
       },
     ),
@@ -66,26 +74,27 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       onGenerateRoute: GeneratedRoutes.generateRoutes,
       theme: theme,
-      // initialRoute: Routes.bottomNav,
-      home: BlocBuilder<LoginCubit,LoginState>(
-        buildWhen: (oldstate, newstate){
+      // initialRoute: Routes.onboard1,
+      home: BlocBuilder<LoginCubit, LoginState>(
+        buildWhen: (oldstate, newstate) {
           return oldstate is LoginInitialState;
         },
-        builder: (context, state){
-          if(state is LoginLoggedInState){
-            return BottomNavBar();
-          }
-          else if(state is LoginLoggedOutState){
+        builder: (context, state) {
+          if (state is LoginLoggedInState) {
+            if (state.isUser == true) {
+              return BottomNavBar();
+            } else {
+              return store_HomeScreen();
+            }
+          } else if (state is LoginLoggedOutState) {
             return SignIn();
-          }
-          else if(state is LoginuserNotVerifiedState){
+          } else if (state is LoginrequiredVerificationState) {
             return SignUpVerification();
           }
           return OnBoard();
         },
       )
-
-
     );
+
   }
 }

@@ -116,6 +116,7 @@ class RequestedOrdersCubit extends Cubit<List<RequestedOrders_Model>> {
   StreamSubscription<QuerySnapshot>? _subscription;
 
   void startListening(String storeID) {
+    print("Started Listening for requestOrders!");
     final collectionRef = _firestore
         .collection('groceryStores')
         .doc(storeID)
@@ -124,6 +125,7 @@ class RequestedOrdersCubit extends Cubit<List<RequestedOrders_Model>> {
       final requestedOrders = snapshots.docs
           .map((doc) => RequestedOrders_Model.fromJson(doc.data()))
           .toList();
+      print(requestedOrders.toString());
       emit(requestedOrders);
     });
   }
@@ -146,6 +148,8 @@ class RequestedOrdersCubit extends Cubit<List<RequestedOrders_Model>> {
         DocumentSnapshot snapshot = await requestedRef.get();
         if (snapshot.exists) {
           await currentRef.set(snapshot.data() as Map<String, dynamic>);
+
+          await currentRef.update({'TRXID' : TRXID});
 
           await requestedRef.delete();
         } else {
@@ -178,6 +182,10 @@ class RequestedOrdersCubit extends Cubit<List<RequestedOrders_Model>> {
       final snapshots = await docRef.get();
       if (snapshots.exists) {
         String? lastTRX_ID = await snapshots.data()!['LastTRX_ID'];
+        if(lastTRX_ID == null){
+          //TODO: Make the Store ID Dynamic here not Constant!
+          lastTRX_ID = "SMVDU101TRX0";
+        }
         String newTRX_ID = _generateNextTransactionID(lastTRX_ID!);
         await docRef.update({'LastTRX_ID': newTRX_ID});
         return newTRX_ID;

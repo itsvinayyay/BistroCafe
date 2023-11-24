@@ -1,10 +1,13 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_cafe/cubits/billing_cubit/billing_cubit.dart';
 import 'package:food_cafe/cubits/billing_cubit/billing_state.dart';
 import 'package:food_cafe/cubits/theme_cubit/theme_cubit.dart';
+import 'package:food_cafe/data/models/All_Orders_Models.dart';
+import 'package:food_cafe/routes/named_routes.dart';
 import 'package:food_cafe/screens/Home_Screen.dart';
 import 'package:food_cafe/theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -25,7 +28,6 @@ class _BillingScreenState extends State<BillingScreen> {
   int _currentpage = 0;
   final PageController _pageController = PageController(initialPage: 0);
   late String entryNo;
-  late final BillingCubit_variable;
 
   @override
   void initState() {
@@ -49,13 +51,11 @@ class _BillingScreenState extends State<BillingScreen> {
   @override
   void dispose() {
     _timer.cancel();
-    BillingCubit_variable.subTotal = 0;
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    BillingCubit_variable = BlocProvider.of<BillingCubit>(context);
     final themeMode = context.watch<ThemeCubit>().state;
     final ThemeData theme = themeMode == MyTheme.dark ? darkTheme : lightTheme;
     return Scaffold(
@@ -67,7 +67,33 @@ class _BillingScreenState extends State<BillingScreen> {
         padding: EdgeInsets.all(5),
         margin: EdgeInsets.only(left: 10, right: 10, bottom: 10),
         child: TextButton(
-          onPressed: () {},
+          onPressed: () {
+            final Billstate = context.read<BillingCubit>().state;
+            bool dineIn = context.read<BillingDineSelectionCubit>().state;
+            bool isCash = context.read<BillingPaymentCubit>().state;
+            int total = 0;
+            if (Billstate is BillLoadedState) {
+              total = Billstate.total;
+            }
+            String hostelName = "Null";
+            if (dineIn == false) {
+              hostelName =
+                  getHostelName(context.read<BillingHostelCubit>().state);
+            }
+            final customerName = FirebaseAuth.instance.currentUser!.displayName;
+
+            showDialog(
+                context: context,
+                builder: (_) => alertDialog(
+                    isDineIn: dineIn,
+                    isCash: isCash,
+                    total: total,
+                    theme: theme,
+                    context: context,
+                    hostelName: hostelName,
+                    customerName: customerName!,
+                    personID: entryNo));
+          },
           child: Text(
             "Checkout!",
             style: theme.textTheme.labelLarge,
@@ -210,7 +236,9 @@ class _BillingScreenState extends State<BillingScreen> {
                             context
                                 .read<BillingDineSelectionCubit>()
                                 .toggleDineIn(true);
-                            context.read<BillingCubit>().calculateSubtotal(entryNo, true);
+                            context
+                                .read<BillingCubit>()
+                                .calculateSubtotal(entryNo, true);
                           }
                         },
                         child: Container(
@@ -235,7 +263,9 @@ class _BillingScreenState extends State<BillingScreen> {
                             context
                                 .read<BillingDineSelectionCubit>()
                                 .toggleDineIn(false);
-                            context.read<BillingCubit>().calculateSubtotal(entryNo, false);
+                            context
+                                .read<BillingCubit>()
+                                .calculateSubtotal(entryNo, false);
                           }
                         },
                         child: Container(
@@ -442,6 +472,75 @@ class _BillingScreenState extends State<BillingScreen> {
   }
 }
 
+AlertDialog alertDialog(
+    {required bool isDineIn,
+    required bool isCash,
+    required String hostelName,
+    required int total,
+    required String customerName,
+    required String personID,
+    required ThemeData theme,
+    required BuildContext context}) {
+  String modeofPayment = isCash == true ? "Cash" : "Online";
+  return AlertDialog(
+    backgroundColor: theme.colorScheme.secondary,
+    title: Text(
+      "Do you want to place your Order?",
+      style: theme.textTheme.headlineMedium,
+    ),
+    content: Text(
+      isDineIn == true
+          ? "Are you sure you want to proceed with $modeofPayment (mode of Payment) for Dine-In with total amount of Rs. $total"
+          : "Are you sure you want to proceed with $modeofPayment (mode of Payment) for Dine-Out ($hostelName) with total amount of Rs. $total",
+      style: theme.textTheme.bodyLarge,
+    ),
+    actions: [
+      TextButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: Text("No")),
+      BlocProvider(
+        create: (context) => BillingCheckOutCubit(),
+        child: BlocConsumer<BillingCheckOutCubit, BillingCheckoutState>(
+          builder: (context, state) {
+            if (state is BillingCheckoutLoadingState) {
+              return CircularProgressIndicator(
+                color: Colors.white,
+              );
+            }
+            return TextButton(
+                onPressed: () {
+                  context.read<BillingCheckOutCubit>().billingCheckout(
+                    customerName: customerName,
+                    personID: personID,
+                    totalMRP: total,
+                    isDineIn: isDineIn,
+                    isCash: isCash,
+                    storeID: "SMVDU101",
+                    hostelName: hostelName,
+                  );
+                },
+                child: Text("Yes"));
+          },
+          listener: (context, state) {
+            if (state is BillingCheckoutLoadedState) {
+              Navigator.pushNamedAndRemoveUntil(
+                  context, Routes.orderPlaced, (route) => false);
+            } else if (state is BillingCheckoutErrorState) {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(SnackBar(content: Text(state.error)));
+            }
+          },
+        ),
+      )
+
+
+    ],
+  );
+}
+
 List Hostels = [
   "Shivalik",
   "Vaishnavi",
@@ -452,3 +551,7 @@ List Hostels = [
   "Nigiri",
   "Vindhyanchal",
 ];
+
+String getHostelName(int hostelNumber) {
+  return Hostels[hostelNumber];
+}

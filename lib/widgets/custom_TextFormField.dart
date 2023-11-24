@@ -2,7 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-TextFormField customTextFormField({required ThemeData theme, required String hintText, required TextEditingController controller, String? prefixIcon, VoidCallback? onTap, bool? obscure, bool? autoFocus}) {
+TextFormField customTextFormField(
+    {required ThemeData theme,
+    required String hintText,
+    required TextEditingController controller,
+    String? prefixIcon,
+    VoidCallback? onTap,
+    bool? obscure,
+    bool? autoFocus,
+    void Function(String)? onChanged,
+    String? Function(String?)? validator}) {
   return TextFormField(
     autofocus: autoFocus ?? false,
     controller: controller,
@@ -14,16 +23,26 @@ TextFormField customTextFormField({required ThemeData theme, required String hin
       ),
       enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20),
-          borderSide: BorderSide(width: 0, color: theme.colorScheme.primary)
-      ),
+          borderSide: BorderSide(width: 0, color: theme.colorScheme.primary)),
       hintText: hintText,
       hintStyle: theme.textTheme.bodySmall,
       contentPadding: EdgeInsets.symmetric(horizontal: 28.w, vertical: 22.h),
-      prefixIcon: prefixIcon == null ? null : Padding(
-        padding: EdgeInsets.only(left: 20.w, right: 16.w),
-        child: SvgPicture.asset("assets/icons/$prefixIcon.svg",),
-      ),
-      suffixIcon: prefixIcon == "lock" ? GestureDetector(onTap: onTap,child: Icon(Icons.remove_red_eye_rounded, color: Colors.black,)) : null,
+      prefixIcon: prefixIcon == null
+          ? null
+          : Padding(
+              padding: EdgeInsets.only(left: 20.w, right: 16.w),
+              child: SvgPicture.asset(
+                "assets/icons/$prefixIcon.svg",
+              ),
+            ),
+      suffixIcon: prefixIcon == "lock"
+          ? GestureDetector(
+              onTap: onTap,
+              child: Icon(
+                Icons.remove_red_eye_rounded,
+                color: obscure == null ? Colors.black : obscure == true ? Colors.black : Colors.white,
+              ))
+          : null,
 
       // prefixIconConstraints: BoxConstraints(minWidth: 24, maxWidth: 24, minHeight: 24, maxHeight: 24)
 
@@ -31,10 +50,11 @@ TextFormField customTextFormField({required ThemeData theme, required String hin
       //   padding: EdgeInsets.only(left: 0),
       //   child: SvgPicture.asset("assets/icons/$prefixIcon.svg",),
       // )
-
     ),
     style: theme.textTheme.bodyLarge,
     cursorColor: theme.colorScheme.secondary,
     obscureText: obscure == null ? false : obscure,
+    onChanged: onChanged,
+    validator: validator,
   );
 }

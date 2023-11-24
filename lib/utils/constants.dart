@@ -1,0 +1,12 @@
+const String kemailnullerror = "Please enter Email address.";
+const String kvalidemailerror = "Please enter valid Email address.";
+const String knullpasserror = "Please enter the Password.";
+const String kshortpass = "Entered Password is too short.";
+const String knopassmatch = "Password didn't match!";
+const String kconfpassnull = "Please Confirm the password";
+const String kfirstnamenull = "Please Enter your First name";
+const String kLastnamenull = "Please Enter your Last name";
+const String knumbernull = "Please Enter your phone number";
+const String kaddressnull = "Please Enter your address";
+const String knumnotvalid = "The Entered number is not valid";
+const String kinvalidaddress = "Address must contains atleast 8 characters";

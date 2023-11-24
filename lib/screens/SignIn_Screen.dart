@@ -6,6 +6,7 @@ import 'package:food_cafe/cubits/login_cubit/login_state.dart';
 import 'package:food_cafe/cubits/theme_cubit/theme_cubit.dart';
 import 'package:food_cafe/routes/named_routes.dart';
 import 'package:food_cafe/theme.dart';
+import 'package:food_cafe/utils/constants.dart';
 import 'package:food_cafe/widgets/custom_TextButton.dart';
 import 'package:food_cafe/widgets/custom_TextFormField.dart';
 
@@ -19,6 +20,7 @@ class SignIn extends StatefulWidget {
 class _SignInState extends State<SignIn> {
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
+  final _formkey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +34,7 @@ class _SignInState extends State<SignIn> {
           child: SingleChildScrollView(
             physics: BouncingScrollPhysics(),
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 25.h, vertical: 48.h),
+              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 48.h),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -51,51 +53,170 @@ class _SignInState extends State<SignIn> {
                   SizedBox(
                     height: 40.h,
                   ),
-                  customTextFormField(
-                      theme: theme,
-                      hintText: "Email",
-                      controller: _emailController),
-                  SizedBox(
-                    height: 12.h,
+                  BlocBuilder<SignInErrorsCubit, List<String>>(
+                    builder: (context, state) {
+                      return Form(
+                        key: _formkey,
+                        child: Column(
+                          children: [
+                            customTextFormField(
+                              theme: theme,
+                              hintText: "Email",
+                              controller: _emailController,
+                              onChanged: (value) {
+                                if (value.isNotEmpty &&
+                                    state.contains(kemailnullerror)) {
+                                  BlocProvider.of<SignInErrorsCubit>(context).removeSignInError(kemailnullerror);
+                                } else if (value.endsWith("@smvdu.ac.in") &&
+                                    state.contains(kvalidemailerror)) {
+                                  BlocProvider.of<SignInErrorsCubit>(context).removeSignInError(kvalidemailerror);
+                                }
+                                return null;
+                              },
+                              validator: (value) {
+                                if (value!.isEmpty &&
+                                    !state.contains(kemailnullerror)) {
+                                  BlocProvider.of<SignInErrorsCubit>(context).addSignInError(kemailnullerror);
+                                } else if (value != null &&
+                                    !value.endsWith("@smvdu.ac.in") &&
+                                    !state.contains(kvalidemailerror) &&
+                                    !state.contains(kemailnullerror)) {
+                                  BlocProvider.of<SignInErrorsCubit>(context).addSignInError(kvalidemailerror);
+                                }
+                                return null;
+                              },
+                            ),
+                            SizedBox(
+                              height: 12.h,
+                            ),
+                            customTextFormField(
+                                theme: theme,
+                                hintText: "Password",
+                                controller: _passwordController,
+                              onChanged: (value) {
+                                if (value.isNotEmpty &&
+                                    state.contains(knullpasserror)) {
+                                  BlocProvider.of<SignInErrorsCubit>(context).removeSignInError(knullpasserror);
+                                } else if (value.length > 6 &&
+                                    state.contains(kshortpass)) {
+                                  BlocProvider.of<SignInErrorsCubit>(context).removeSignInError(kshortpass);
+                                }
+                                return null;
+                              },
+                              validator: (value) {
+                                if (value != null &&
+                                    value.isEmpty &&
+                                    !state.contains(knullpasserror)) {
+                                  BlocProvider.of<SignInErrorsCubit>(context).addSignInError(knullpasserror);
+                                } else if (value != null &&
+                                    value.length < 6 &&
+                                    !state.contains(kshortpass) &&
+                                    !state.contains(knullpasserror)) {
+                                  BlocProvider.of<SignInErrorsCubit>(context).addSignInError(kshortpass);
+                                }
+                                return null;
+                              },
+                            ),
+                            Column(
+                              children: List.generate(
+                                state.length,
+                                (index) => Row(
+                                  children: [
+                                    Icon(
+                                      Icons.error,
+                                      size: 20,
+                                      color: Colors.red.shade200,
+                                    ),
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Text(
+                                      state[index],
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      );
+                    },
                   ),
-                  customTextFormField(
-                      theme: theme,
-                      hintText: "Password",
-                      controller: _passwordController),
                   SizedBox(
                     height: 20.h,
                   ),
                   Text(
-                    "Or Continue With",
+                    "Or Continue with/as",
                     style: theme.textTheme.titleSmall,
                   ),
                   SizedBox(
                     height: 20.h,
                   ),
-                  Container(
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.primary,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    width: 154.w,
-                    padding:
-                        EdgeInsets.symmetric(vertical: 22.h, horizontal: 24.w),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.person_add_alt_1_rounded,
-                          color: theme.colorScheme.secondary,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(context, Routes.signUp);
+                        },
+                        child: Container(
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.primary,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          padding: EdgeInsets.symmetric(
+                              vertical: 22.h, horizontal: 24.w),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.person_add_alt_1_rounded,
+                                color: theme.colorScheme.secondary,
+                              ),
+                              SizedBox(
+                                width: 13,
+                              ),
+                              Text(
+                                "Sign Up",
+                                style: theme.textTheme.labelMedium,
+                              ),
+                            ],
+                          ),
                         ),
-                        SizedBox(
-                          width: 13,
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(context, Routes.store_SignIn);
+                        },
+                        child: Container(
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.primary,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          padding: EdgeInsets.symmetric(
+                              vertical: 22.h, horizontal: 24.w),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.person,
+                                color: theme.colorScheme.secondary,
+                              ),
+                              SizedBox(
+                                width: 13,
+                              ),
+                              Text(
+                                "Cafe Owner",
+                                style: theme.textTheme.labelMedium,
+                              ),
+                            ],
+                          ),
                         ),
-                        Text(
-                          "Sign Up",
-                          style: theme.textTheme.labelMedium,
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                   SizedBox(
                     height: 20.h,
@@ -125,8 +246,15 @@ class _SignInState extends State<SignIn> {
                         context: context,
                         theme: theme,
                         onPressed: () {
-                          BlocProvider.of<LoginCubit>(context).signinwith_Email(
-                              _emailController.text, _passwordController.text);
+                          if(_formkey.currentState!.validate()){
+                            if(context.read<SignInErrorsCubit>().state.isEmpty){
+                              BlocProvider.of<LoginCubit>(context).signinwith_Email(
+                                  _emailController.text, _passwordController.text);
+                            }
+                          }
+
+
+
                         },
                         title: "Verify");
                   }, listener: (context, state) {

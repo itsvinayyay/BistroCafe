@@ -8,25 +8,9 @@ import 'package:food_cafe/routes/named_routes.dart';
 import 'package:food_cafe/theme.dart';
 import 'package:food_cafe/widgets/custom_TextButton.dart';
 
-class SignUpSuccess extends StatefulWidget {
-  const SignUpSuccess({Key? key}) : super(key: key);
+class store_ItemAdded extends StatelessWidget {
+  const store_ItemAdded({Key? key}) : super(key: key);
 
-  @override
-  State<SignUpSuccess> createState() => _SignUpSuccessState();
-}
-
-class _SignUpSuccessState extends State<SignUpSuccess> {
-  late bool isUser;
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    final state = context.read<LoginCubit>().state;
-    if(state is LoginLoggedInState){
-      isUser = state.isUser;
-    }
-  }
   @override
   Widget build(BuildContext context) {
     final themeMode = context.watch<ThemeCubit>().state;
@@ -59,7 +43,7 @@ class _SignUpSuccessState extends State<SignUpSuccess> {
                 height: 12.h,
               ),
               Text(
-                "Your Profile is Ready To Use",
+                "New Item added successfully!",
                 style: theme.textTheme.headlineMedium,
               ),
               SizedBox(
@@ -69,13 +53,9 @@ class _SignUpSuccessState extends State<SignUpSuccess> {
                   context: context,
                   theme: theme,
                   onPressed: () {
-                    isUser == true
-                        ? Navigator.pushNamedAndRemoveUntil(
-                            context, Routes.bottomNav, (route) => false)
-                        : Navigator.pushNamedAndRemoveUntil(
-                            context, Routes.store_HomeScreen, (route) => false);
+                    Navigator.pushNamedAndRemoveUntil(context, Routes.store_HomeScreen, (route) => false);
                   },
-                  title: "Try Order"),
+                  title: "Back to Home"),
             ],
           ),
         ),

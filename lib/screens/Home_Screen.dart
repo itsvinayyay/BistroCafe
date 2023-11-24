@@ -9,9 +9,13 @@ import 'package:food_cafe/cubits/home_cubit/homescreen_state.dart';
 import 'package:food_cafe/cubits/login_cubit/login_cubit.dart';
 import 'package:food_cafe/cubits/theme_cubit/theme_cubit.dart';
 import 'package:food_cafe/data/models/CartScreen_FoodCard.dart';
+import 'package:food_cafe/data/services/notification_services.dart';
+import 'package:food_cafe/data/services/notification_services.dart';
 import 'package:food_cafe/routes/named_routes.dart';
 import 'package:food_cafe/theme.dart';
 import 'package:food_cafe/widgets/custom_FoodCard.dart';
+
+import '../data/services/notification_services.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -22,6 +26,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  NotificationServices notificationServices = NotificationServices();
   late String entryNo;
   int _currentpage = 0;
   final PageController _pageController = PageController(initialPage: 0);
@@ -32,6 +37,17 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    notificationServices.requestNotificationPermission();
+    notificationServices.firebaseInit(context);
+    notificationServices.setupInteractMessage(context);
+    // notificationServices.isTokenRefresh();
+    notificationServices.getDeviceToken().then((value) {
+      print("This is the Device Token!!!");
+      print(value);
+    });
+
+
+
     entryNo = context.read<LoginCubit>().getEntryNo();
     if(!_initialized){
 
@@ -86,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       radius: 30.sp,
                     ),
-                    SizedBox(height: 10,),
+                    SizedBox(height: 5,),
 
                     Text('Delightful Dining, Every Bite a Delight!', style: theme.textTheme.titleSmall,),
                     SizedBox(height: 10,),
@@ -168,7 +184,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        print("OnTap");
                         _scaffoldKey.currentState!.openEndDrawer();
                       },
                       child: Container(
@@ -324,7 +339,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     (BuildContext context, int index) {
                                   return foodCard(
                                     theme: theme,
-                                    image_url: "https://www.vegrecipesofindia.com/wp-content/uploads/2022/12/garlic-naan-3.jpg",
+                                    image_url: state.cards[index].imageURL!,
                                     foodName: state.cards[index].name!,
                                     mrp: state.cards[index].mrp!,
                                     onTap: (){
@@ -349,7 +364,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   return Center(
                     child: Text("Error here!"),
                   );
-                }, listener: (context, state){})
+                }, listener: (context, state){
+                  print(state.toString());
+                })
 
               ],
             ),
