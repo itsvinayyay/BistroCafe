@@ -2,14 +2,13 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:food_cafe/cubits/billing_cubit/billing_state.dart';
+
 import 'package:food_cafe/cubits/login_cubit/login_cubit.dart';
 import 'package:food_cafe/cubits/store_additem_cubit/addImage_state.dart';
 import 'package:food_cafe/cubits/store_additem_cubit/additem_cubit.dart';
 import 'package:food_cafe/cubits/store_additem_cubit/additem_state.dart';
 import 'package:food_cafe/cubits/theme_cubit/theme_cubit.dart';
-import 'package:food_cafe/routes/named_routes.dart';
+import 'package:food_cafe/core/routes/named_routes.dart';
 import 'package:food_cafe/theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food_cafe/widgets/custom_TextButton.dart';
@@ -27,7 +26,6 @@ class _store_AddItemsScreenState extends State<store_AddItemsScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _itemnameController = TextEditingController();
   final TextEditingController _mrpController = TextEditingController();
-  final TextEditingController _itemIDController = TextEditingController();
   File? imageFile;
   bool isAvailable = false;
   String selectedCategory = 'Appetizers';
@@ -201,7 +199,7 @@ class _store_AddItemsScreenState extends State<store_AddItemsScreen> {
                                             selectedCategory = newValue!;
                                             context
                                                 .read<CategoryCubit>()
-                                                .toggleCategory(newValue!);
+                                                .toggleCategory(newValue);
                                           },
                                           items: categories
                                               .map<DropdownMenuItem<String>>(
@@ -293,7 +291,7 @@ class _store_AddItemsScreenState extends State<store_AddItemsScreen> {
                             }
                           },
                           builder: (context, state) {
-                            if (state is LoadingState) {
+                            if (state is ImageLoadingState) {
                               return Center(
                                 child: CircularProgressIndicator(
                                   color: Colors.white,

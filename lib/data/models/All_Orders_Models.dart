@@ -11,8 +11,11 @@ class RequestedOrders_Model {
   bool? isCash;
   String? storeID;
   String? hostelName;
+  String? tokenID;
+  String? orderStatus;
 
-  RequestedOrders_Model({this.orderID,
+  RequestedOrders_Model({
+    this.orderID,
     this.customerName,
     this.entryNo,
     this.totalMRP,
@@ -22,6 +25,8 @@ class RequestedOrders_Model {
     this.isCash,
     this.storeID,
     this.hostelName,
+    this.tokenID,
+    this.orderStatus,
   });
 
   // Create an Order object from a Firestore document
@@ -37,6 +42,8 @@ class RequestedOrders_Model {
       isCash: json['IsPaid'] as bool,
       storeID: json['StoreID'] as String,
       hostelName: json['HostelName'] ?? "Error",
+      tokenID: json['TokenID'],
+      orderStatus: json['OrderStatus'],
     );
   }
 
@@ -53,10 +60,11 @@ class RequestedOrders_Model {
       'IsDineIn': isDineIn,
       'StoreID': storeID,
       'HostelName': hostelName,
+      'TokenID': tokenID,
+      'OrderStatus': orderStatus
     };
   }
 }
-
 
 class CurrentOrders_Model {
   String? orderID;
@@ -70,7 +78,8 @@ class CurrentOrders_Model {
   bool? isCash;
   String? hostelName;
 
-  CurrentOrders_Model({this.orderID,
+  CurrentOrders_Model({
+    this.orderID,
     this.trxID,
     this.customerName,
     this.entryNo,
@@ -94,7 +103,7 @@ class CurrentOrders_Model {
       time: json['Time'] as Timestamp,
       isDineIn: json['IsDineIn'] as bool,
       isCash: json['IsPaid'] as bool,
-        hostelName: json['HostelName'] ?? "Not Applicable",
+      hostelName: json['HostelName'] ?? "Not Applicable",
     );
   }
 
@@ -126,7 +135,8 @@ class PastOrders_Model {
   bool? isCash;
   String? hostelName;
 
-  PastOrders_Model({this.orderID,
+  PastOrders_Model({
+    this.orderID,
     this.trxID,
     this.customerName,
     this.entryNo,
@@ -148,7 +158,7 @@ class PastOrders_Model {
       time: json['Time'] as Timestamp,
       isDineIn: json['IsDineIn'] as bool,
       isCash: json['IsPaid'] as bool,
-        hostelName: json['HostelName'] as String,
+      hostelName: json['HostelName'] as String,
     );
   }
 
@@ -168,12 +178,10 @@ class PastOrders_Model {
   }
 }
 
-
 class BasicOrder_Model {
   String? name;
   int? qty;
   int? mrp;
-
 
   BasicOrder_Model({
     this.name,
@@ -181,19 +189,89 @@ class BasicOrder_Model {
     this.qty,
   });
 
-  factory BasicOrder_Model.fromJson(Map<String, dynamic> json){
+  factory BasicOrder_Model.fromJson(Map<String, dynamic> json) {
     return BasicOrder_Model(
-      name : json['Name'] as String,
+      name: json['Name'] as String,
       qty: json['Qty'] as int,
       mrp: json['Price'] as int,
     );
   }
 
-  Map<String, dynamic> toJson(){
+  Map<String, dynamic> toJson() {
     return {
-      'Name' : name,
-      'Quantity' : qty,
-      'Price' : mrp,
+      'Name': name,
+      'Quantity': qty,
+      'Price': mrp,
+    };
+  }
+}
+
+class Orders_Model {
+  String? orderID;
+  String? trxID;
+  String? customerName;
+  String? entryNo;
+  int? totalMRP;
+  List<Map<String, dynamic>>? orderItems;
+  Timestamp? time;
+  bool? isDineIn;
+  bool? isCash;
+  String? storeID;
+  String? hostelName;
+  String? tokenID;
+  String? orderStatus;
+
+  Orders_Model({
+    this.orderID,
+    this.trxID,
+    this.customerName,
+    this.entryNo,
+    this.totalMRP,
+    this.orderItems,
+    this.time,
+    this.isDineIn,
+    this.isCash,
+    this.storeID,
+    this.hostelName,
+    this.tokenID,
+    this.orderStatus,
+  });
+
+  // Create an Order object from a Firestore document
+  factory Orders_Model.fromJson(Map<String, dynamic> json) {
+    return Orders_Model(
+      orderID: json['OrderID'] as String,
+      trxID: json['TRXID'] ?? "Null",
+      customerName: json['Name'] as String,
+      entryNo: json['EntryNo'] as String,
+      totalMRP: json['Total'] as int,
+      orderItems: List<Map<String, dynamic>>.from(json['MenuItems'] as List),
+      time: json['Time'] as Timestamp,
+      isDineIn: json['IsDineIn'] as bool,
+      isCash: json['IsPaid'] as bool,
+      storeID: json['StoreID'] as String,
+      hostelName: json['HostelName'] ?? "Error",
+      tokenID: json['TokenID'],
+      orderStatus: json['OrderStatus'],
+    );
+  }
+
+  // Convert an Order object to a Map for Firestore
+  Map<String, dynamic> toJson() {
+    return {
+      'OrderID': orderID,
+      'TRXID': trxID,
+      'Name': customerName,
+      'EntryNo': entryNo,
+      'Total': totalMRP,
+      'MenuItems': orderItems,
+      'Time': time,
+      'IsPaid': isCash,
+      'IsDineIn': isDineIn,
+      'StoreID': storeID,
+      'HostelName': hostelName,
+      'TokenID': tokenID,
+      'OrderStatus': orderStatus,
     };
   }
 }

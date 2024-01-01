@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +17,7 @@ class CartLocalState extends Cubit<Map<String, int>> {
   //       .doc('SMVDU$userID')
   //       .collection('cartitem');
   //   try{
-  //     print("Calculating");
+  //     log("Calculating");
   //     int total = 0;
   //     for(var entry in state.entries){
   //       String itemID = entry.key;
@@ -27,10 +29,10 @@ class CartLocalState extends Cubit<Map<String, int>> {
   //     totalMRP = total;
   //     emit(state);
   //   } catch (e) {
-  //     print('Error getting totalMRP with Firestore: $e');
+  //     log('Error getting totalMRP with Firestore: $e');
   //   }
   //
-  //   print(totalMRP);
+  //   log(totalMRP);
   //
   // }
 
@@ -43,35 +45,32 @@ class CartLocalState extends Cubit<Map<String, int>> {
       final snapshot = await collectionRef.get();
       final initializedState = Map<String, int>();
       int total = 0;
-      if(snapshot.docs.isNotEmpty){
-
+      if (snapshot.docs.isNotEmpty) {
         for (var docs in snapshot.docs) {
           String itemID = docs.id;
           int quantity = docs['Quantity'];
           int mrp = docs['Price'];
-          total+=quantity*mrp;
+          total += quantity * mrp;
 
           initializedState[itemID] = quantity;
         }
-
       }
-      print(totalMRP);
+      log(totalMRP.toString());
 
       emit(initializedState);
 
-      // print(initializedState.toString());
-
+      // log(initializedState.toString());
     } catch (e) {
-      print(e.toString());
+      log(e.toString());
     }
   }
 
-  void addItemsToLocal(String itemID, String userID) async{
+  void addItemsToLocal(String itemID, String userID) async {
     Map<String, int> updatedState = Map.from(state);
     if (updatedState.containsKey(itemID)) {
       updatedState[itemID] = updatedState[itemID]! + 1;
     }
-    print('Quantity Increased!');
+    log('Quantity Increased!');
 
     emit(updatedState);
   }
@@ -95,10 +94,9 @@ class CartLocalState extends Cubit<Map<String, int>> {
         updatedState[itemID] = updatedState[itemID]! - 1;
       }
     }
-    print('Quantity Decreased!');
-    print(updatedState.toString());
+    log('Quantity Decreased!');
+    log(updatedState.toString());
     emit(updatedState);
-
   }
 
   void deleteItemfromCart(String userID, String itemID) async {
@@ -114,58 +112,63 @@ class CartLocalState extends Cubit<Map<String, int>> {
         await doc.reference.delete();
       }
       updatedState.remove(itemID);
-      print('Item removed!');
-      print(updatedState.toString());
+      log('Item removed!');
+      log(updatedState.toString());
       emit(updatedState);
     } catch (e) {
-      print(e.toString());
+      log(e.toString());
     }
   }
 
-  void addItemstoCart(String userID, Cart_FoodCard_Model item, BuildContext context) async{
+  void addItemstoCart(
+      String userID, Cart_FoodCard_Model item, BuildContext context) async {
     Map<String, int> updatedState = Map.from(state);
     final collectionRef = FirebaseFirestore.instance
         .collection('Users')
         .doc('SMVDU$userID')
         .collection('cartitem');
-    try{
-      final query = await collectionRef.where('ItemID', isEqualTo: item.itemID).limit(1).get();
+    try {
+      final query = await collectionRef
+          .where('ItemID', isEqualTo: item.itemID)
+          .limit(1)
+          .get();
 
-      if(query.docs.isNotEmpty){
+      if (query.docs.isNotEmpty) {
         updatedState[item.itemID!] = updatedState[item.itemID]! + 1;
-        print('Already Present!');
-      } else{
+        log('Already Present!');
+      } else {
         updatedState[item.itemID!] = 1;
         collectionRef.doc(item.itemID).set(item.toJson());
       }
-      print('Item Added!');
-      print(updatedState.toString());
+      log('Item Added!');
+      log(updatedState.toString());
       emit(updatedState);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Your Cart List is updated!"), duration: Duration(seconds: 1),));
-    }
-    catch (e) {
-      print(e.toString());
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Your Cart List is updated!"),
+        duration: Duration(seconds: 1),
+      ));
+    } catch (e) {
+      log(e.toString());
     }
   }
 
-  Future syncLocalState(String userID) async{
+  Future syncLocalState(String userID) async {
     final collectionRef = FirebaseFirestore.instance
         .collection('Users')
         .doc('SMVDU$userID')
         .collection('cartitem');
-    try{
-      for(var entry in state.entries){
+    try {
+      for (var entry in state.entries) {
         String itemID = entry.key;
         int quantity = entry.value;
-        
+
         final docRef = collectionRef.doc(itemID);
         await docRef.update({'Quantity': quantity});
       }
 
-      print("Items Synced!!!!!!!!");
-    }
-    catch (e) {
-      print('Error syncing with Firestore: $e');
+      log("Items Synced!");
+    } catch (e) {
+      log('Error syncing with Firestore: $e');
     }
   }
 }

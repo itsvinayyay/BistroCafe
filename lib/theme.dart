@@ -140,6 +140,7 @@ ThemeData darkTheme = ThemeData(
       fontSize: 16.sp,
       fontWeight: FontWeight.w500,
       color: Color(0XFFE8E5F8),
+      height: 1.25
     ),
     labelSmall: TextStyle(
       fontFamily: 'BentonSans_Book',

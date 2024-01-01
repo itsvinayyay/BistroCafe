@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:food_cafe/cubits/cart_cubit/cartDisplay_cubit.dart';
 import 'package:food_cafe/cubits/theme_cubit/theme_cubit.dart';
-import 'package:food_cafe/screens/Cart_Screen.dart';
-import 'package:food_cafe/screens/Home_Screen.dart';
-import 'package:food_cafe/screens/ProfilePage.dart';
+import 'package:food_cafe/screens/user_screens/home_screen/Cart_Screen.dart';
+import 'package:food_cafe/screens/user_screens/home_screen/Home_Screen.dart';
+import 'package:food_cafe/screens/user_screens/home_screen/ProfilePage.dart';
 import 'package:food_cafe/theme.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 
@@ -18,9 +19,9 @@ class BottomNavBar extends StatefulWidget {
 class _BottomNavBarState extends State<BottomNavBar> {
   int _selectedIndex = 0;
   final List<Widget> _pages = [
-    HomeScreen(),
-    CartScreen(),
-    ProfilePage(),
+    const HomeScreen(),
+    BlocProvider(create: (context) => CartDisplayCubit(), child: const CartScreen(),),
+    const ProfilePage(),
   ];
 
   void _onitemtapped(int index) {
@@ -48,10 +49,10 @@ class _BottomNavBarState extends State<BottomNavBar> {
             activeColor: theme.colorScheme.secondary,
             gap: 10,
             tabBackgroundColor: theme.colorScheme.secondary.withOpacity(0.3),
-            padding: EdgeInsets.all(12),
+            padding: const EdgeInsets.all(12),
             selectedIndex: _selectedIndex,
             onTabChange: _onitemtapped,
-            tabs: [
+            tabs: const [
               GButton(
                 icon: Icons.home,
                 text: "Home",

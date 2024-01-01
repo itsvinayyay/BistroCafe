@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:food_cafe/cubits/store_orders_cubit/store_orders_cubit.dart';
+import 'package:food_cafe/cubits/store_orders_cubit/currentOrders_cubit/currentOrders_cubit.dart';
+
+import 'package:food_cafe/cubits/store_orders_cubit/pastOrders_cubit/pastOrders_cubit.dart';
+
+import 'package:food_cafe/cubits/store_orders_cubit/requestedOrders_cubit/requestedOrders_cubit.dart';
+
 import 'package:food_cafe/cubits/theme_cubit/theme_cubit.dart';
-import 'package:food_cafe/data/models/All_Orders_Models.dart';
+
+import 'package:food_cafe/screens/store_screens/orders_screen/store_currentOrders_screen.dart';
+import 'package:food_cafe/screens/store_screens/orders_screen/store_pastOrders_screen.dart';
+import 'package:food_cafe/screens/store_screens/orders_screen/store_requestedOrders_screen.dart';
+
 import 'package:food_cafe/theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:food_cafe/widgets/headings.dart';
-import 'package:intl/intl.dart';
+
 
 class store_OrdersScreen extends StatefulWidget {
   store_OrdersScreen({Key? key}) : super(key: key);
@@ -16,23 +24,37 @@ class store_OrdersScreen extends StatefulWidget {
 }
 
 class _store_OrdersScreenState extends State<store_OrdersScreen> {
+  // late RequestedOrdersCubit requestedOrdersCubit = RequestedOrdersCubit();
+  // late CurrentOrdersCubit currentOrdersCubit = CurrentOrdersCubit();
+  // late PastOrdersCubit pastOrdersCubit = PastOrdersCubit();
+  int currentBNIndex = 0;
+
+  List<Widget> OrderScreens = [
+    BlocProvider(
+        create: (context) => RequestedOrdersCubit(),
+        child: RequestedOrdersScreen()),
+    BlocProvider(
+      create: (context) => CurrentOrdersCubit(),
+      child: CurrentOrdersScreen(),
+    ),
+    BlocProvider(
+      create: (context) => PastOrdersCubit(),
+      child: PastOrdersScreen(),
+    ),
+  ];
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     //TODO Initialize the stream again for Requested Orders!
-    context.read<CurrentOrdersCubit>().startListening("SMVDU101");
-    context.read<PastOrdersCubit>().startListening("SMVDU101");
-    context.read<RequestedOrdersCubit>().startListening("SMVDU101");
+    
   }
 
   @override
   void dispose() {
     // TODO: implement dispose
     super.dispose();
-    context.read<RequestedOrdersCubit>().close();
-    context.read<PastOrdersCubit>().close();
-    context.read<CurrentOrdersCubit>().close();
+    
   }
 
   @override
@@ -40,751 +62,32 @@ class _store_OrdersScreenState extends State<store_OrdersScreen> {
     final themeMode = context.watch<ThemeCubit>().state;
     final ThemeData theme = themeMode == MyTheme.dark ? darkTheme : lightTheme;
     return Scaffold(
-      backgroundColor: theme.colorScheme.background,
-      body: SafeArea(
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(10.0),
         child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
           physics: BouncingScrollPhysics(),
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 15),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: 25,
-                ),
-                Text(
-                  "Your Orders!",
-                  style: theme.textTheme.headlineLarge,
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                BlocBuilder<OrdersTabCubit, int>(
-                  builder: (context, state) {
-                    return SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      physics: BouncingScrollPhysics(),
-                      child: Row(
-                        children: [
-                          ...List.generate(
-                            Tabs.length,
-                            (index) => tabContainers(
-                                theme: theme,
-                                name: Tabs[index],
-                                onTap: () {
-                                  context
-                                      .read<OrdersTabCubit>()
-                                      .toggleTab(index);
-                                },
-                                isCurrentTab: state == index),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                // BlocBuilder<CurrentOrdersCubit,
-                //     List<CurrentOrders_Model>>(builder: (context, state) {
-                //   return ListView.builder(
-                //       physics: NeverScrollableScrollPhysics(),
-                //       shrinkWrap: true,
-                //       itemCount: state.length,
-                //       itemBuilder: (context, index) {
-                //         return currentOrders_Card(
-                //             theme: theme,
-                //             context: context,
-                //             currentOrders_Model: state[index],
-                //             prepared: () {});
-                //       });
-                // })
-                //TODO Here
-                BlocBuilder<OrdersTabCubit, int>(
-                  builder: (context, state) {
-                    if (state == 2) {
-                      return BlocBuilder<PastOrdersCubit,
-                          List<PastOrders_Model>>(builder: (context, state) {
-                        return ListView.builder(
-                            physics: NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            itemCount: state.length,
-                            itemBuilder: (context, index) {
-                              return pastOrder_Card(
-                                  theme: theme,
-                                  context: context,
-                                  pastOrders_Model: state[index],
-                                  onTap: () {});
-                            });
-                      });
-                    } else if (state == 1) {
-                      return BlocBuilder<CurrentOrdersCubit,
-                          List<CurrentOrders_Model>>(builder: (context, state) {
-                        return ListView.builder(
-                            physics: NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            itemCount: state.length,
-                            itemBuilder: (context, index) {
-                              return currentOrders_Card(
-                                  theme: theme,
-                                  context: context,
-                                  currentOrders_Model: state[index],
-                                  prepared: () {
-                                    //TODO Add a notification functionality to notify user!
-                                    context
-                                        .read<CurrentOrdersCubit>()
-                                        .currentOrder_prepared(
-                                            state[index].trxID!);
-                                  });
-                            });
-                      });
-                    } else if (state == 0) {
-                      return BlocBuilder<RequestedOrdersCubit,
-                              List<RequestedOrders_Model>>(
-                          builder: (context, state) {
-                        return ListView.builder(
-                            physics: NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            itemCount: state.length,
-                            itemBuilder: (context, index) {
-                              return requestedOrders_Card(
-                                  theme: theme,
-                                  context: context,
-                                  requestedOrders_Model: state[index],
-                                  accept: () {
-                                    //TODO Add Notification functionlity to inform the user
-                                    //TODO Change the hardcoded SMVDU101TRX1!
-                                    context
-                                        .read<RequestedOrdersCubit>()
-                                        .accept_requested_Order(
-                                            state[index].orderID!);
-                                  },
-                                  reject: () {
-                                    //TODO Add Notification functionlity to inform the user
-                                    context
-                                        .read<RequestedOrdersCubit>()
-                                        .reject_requested_order(
-                                            state[index].orderID!);
-                                  });
-                            });
-                      });
-                    }
-                    return Text("Error!");
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  GestureDetector pastOrder_Card({
-    required ThemeData theme,
-    required BuildContext context,
-    required PastOrders_Model pastOrders_Model,
-    required VoidCallback onTap,
-  }) {
-    String time =
-    DateFormat('hh:mm a').format(pastOrders_Model.time!.toDate());
-    String date =
-    DateFormat('d MMM y').format(pastOrders_Model.time!.toDate());
-    return GestureDetector(
-      onTap: onTap,
-      child: Card(
-        elevation: 8,
-        shadowColor: theme.colorScheme.secondary,
-        color: theme.colorScheme.primary,
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 20.sp,
-                        child: Icon(
-                          Icons.person,
-                          color: theme.colorScheme.secondary,
-                        ),
-                      ),
-                      SizedBox(
-                        width: 5,
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            pastOrders_Model.customerName!,
-                            style: theme.textTheme.titleSmall,
-                            textAlign: TextAlign.right,
-                          ),
-                          Text(
-                            pastOrders_Model.entryNo!,
-                            style: theme.textTheme.bodySmall,
-                            // textAlign: TextAlign.right,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        pastOrders_Model.isDineIn == true
-                            ? "Dine-In"
-                            : "Dine-Out",
-                        style: theme.textTheme.titleSmall,
-                        // textAlign: TextAlign.right,
-                      ),
-                      if(pastOrders_Model.isDineIn == false)
-                        Text(
-                          pastOrders_Model.hostelName!,
-                          style: theme.textTheme.titleSmall,
-                          // textAlign: TextAlign.right,
-                        ),
-                      Text(
-                        "$date | $time",
-                        style: theme.textTheme.bodySmall,
-                        // textAlign: TextAlign.right,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              Column(
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        "Transaction ID: ",
-                        style: theme.textTheme.labelMedium,
-                        // textAlign: TextAlign.right,
-                      ),
-                      Text(
-                        pastOrders_Model.trxID!,
-                        style: theme.textTheme.bodyLarge,
-                        // textAlign: TextAlign.right,
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        "Order ID: ",
-                        style: theme.textTheme.labelMedium,
-                        // textAlign: TextAlign.right,
-                      ),
-                      Text(
-                        pastOrders_Model.orderID!,
-                        style: theme.textTheme.bodyLarge,
-                        // textAlign: TextAlign.right,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text(
-                    "₹ ${pastOrders_Model.totalMRP}",
-                    style: theme.textTheme.labelLarge,
-                  ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 10.w, vertical: 2),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(width: 2, color: Colors.green),
-                    ),
-                    child: Text(
-                      "Paid",
-                      style: TextStyle(
-                        color: Colors.green,
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w700,
-                        fontFamily: 'BentonSans_Bold',
-                      ),
-                      // textAlign: TextAlign.right,
-                    ),
-                  ),
-                ],
+              ...List.generate(
+                Tabs.length,
+                (index) => tabContainers(
+                    theme: theme,
+                    name: Tabs[index],
+                    onTap: () {
+                      setState(() {
+                        currentBNIndex = index;
+                      });
+                    },
+                    isCurrentTab: currentBNIndex == index),
               ),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Card currentOrders_Card({
-    required ThemeData theme,
-    required BuildContext context,
-    required CurrentOrders_Model currentOrders_Model,
-    required VoidCallback prepared,
-  }) {
-    String time =
-        DateFormat('hh:mm a').format(currentOrders_Model.time!.toDate());
-    String date =
-        DateFormat('d MMM y').format(currentOrders_Model.time!.toDate());
-    return Card(
-      elevation: 8,
-      shadowColor: theme.colorScheme.secondary,
-      color: theme.colorScheme.primary,
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                CircleAvatar(
-                  radius: 20.sp,
-                  child: Icon(
-                    Icons.person,
-                    color: theme.colorScheme.secondary,
-                  ),
-                ),
-                SizedBox(
-                  width: 5,
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      currentOrders_Model.customerName!,
-                      style: theme.textTheme.titleSmall,
-                      textAlign: TextAlign.right,
-                    ),
-                    Text(
-                      currentOrders_Model.entryNo!,
-                      style: theme.textTheme.bodySmall,
-                      // textAlign: TextAlign.right,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      "Type: ",
-                      style: theme.textTheme.labelMedium,
-                      // textAlign: TextAlign.right,
-                    ),
-                    Text(
-                      currentOrders_Model.isDineIn == true
-                          ? "Dine-In"
-                          : "Dine-Out",
-                      style: theme.textTheme.bodyLarge,
-                      // textAlign: TextAlign.right,
-                    ),
-                  ],
-                ),
-                if (currentOrders_Model.isDineIn == false)
-                  Row(
-                    children: [
-                      Text(
-                        "Hostel Name: ",
-                        style: theme.textTheme.labelMedium,
-                        // textAlign: TextAlign.right,
-                      ),
-                      Text(
-                        currentOrders_Model.hostelName!,
-                        style: theme.textTheme.bodyLarge,
-                        // textAlign: TextAlign.right,
-                      ),
-                    ],
-                  ),
-                Row(
-                  children: [
-                    Text(
-                      "Ordered on: ",
-                      style: theme.textTheme.labelMedium,
-                      // textAlign: TextAlign.right,
-                    ),
-                    Text(
-                      date,
-                      style: theme.textTheme.bodyLarge,
-                      // textAlign: TextAlign.right,
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Text(
-                      "Time: ",
-                      style: theme.textTheme.labelMedium,
-                      // textAlign: TextAlign.right,
-                    ),
-                    Text(
-                      time,
-                      style: theme.textTheme.bodyLarge,
-                      // textAlign: TextAlign.right,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            Divider(
-              thickness: 1,
-              color: Colors.grey.shade600,
-            ),
-            Column(children: [
-              ...List.generate(
-                currentOrders_Model.orderItems!.length,
-                (index) => foodRow(
-                  theme: theme,
-                  foodItem: currentOrders_Model.orderItems![index],
-                ),
-              ),
-            ]),
-            Divider(
-              thickness: 1,
-              color: Colors.grey.shade600,
-            ),
-            Column(
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      "Transaction ID: ",
-                      style: theme.textTheme.labelMedium,
-                      // textAlign: TextAlign.right,
-                    ),
-                    Text(
-                      currentOrders_Model.trxID!,
-                      style: theme.textTheme.bodyLarge,
-                      // textAlign: TextAlign.right,
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Text(
-                      "Order ID: ",
-                      style: theme.textTheme.labelMedium,
-                      // textAlign: TextAlign.right,
-                    ),
-                    Text(
-                      currentOrders_Model.orderID!,
-                      style: theme.textTheme.bodyLarge,
-                      // textAlign: TextAlign.right,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "₹ ${currentOrders_Model.totalMRP}",
-                      style: theme.textTheme.labelLarge,
-                    ),
-                    Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 10.w, vertical: 2),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                            width: 2,
-                            color: currentOrders_Model.isCash == true
-                                ? Colors.blue
-                                : Colors.red),
-                      ),
-                      child: Text(
-                        currentOrders_Model.isCash == true ? "Cash" : "Online",
-                        style: TextStyle(
-                          color: Colors.blue,
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w700,
-                          fontFamily: 'BentonSans_Bold',
-                        ),
-                        // textAlign: TextAlign.right,
-                      ),
-                    ),
-                  ],
-                ),
-                TextButton(
-                  onPressed: prepared,
-                  child: Text(
-                    "Prepared...",
-                    style: theme.textTheme.titleSmall,
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Card requestedOrders_Card(
-      {required ThemeData theme,
-      required BuildContext context,
-      required RequestedOrders_Model requestedOrders_Model,
-      required VoidCallback accept,
-      required VoidCallback reject}) {
-    String time =
-        DateFormat('hh:mm a').format(requestedOrders_Model.time!.toDate());
-    String date =
-        DateFormat('d MMM y').format(requestedOrders_Model.time!.toDate());
-    return Card(
-      elevation: 8,
-      shadowColor: theme.colorScheme.secondary,
-      color: theme.colorScheme.primary,
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 20.sp,
-                      child: Icon(
-                        Icons.person,
-                        color: theme.colorScheme.secondary,
-                      ),
-                    ),
-                    SizedBox(
-                      width: 5,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          requestedOrders_Model.customerName!,
-                          style: theme.textTheme.titleSmall,
-                          textAlign: TextAlign.right,
-                        ),
-                        Text(
-                          requestedOrders_Model.entryNo!,
-                          style: theme.textTheme.bodySmall,
-                          // textAlign: TextAlign.right,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      requestedOrders_Model.isDineIn == true
-                          ? "Dine-In"
-                          : "Dine-Out",
-                      style: theme.textTheme.titleSmall,
-                      // textAlign: TextAlign.right,
-                    ),
-                    if (requestedOrders_Model.isDineIn == false)
-                      Text(
-                        requestedOrders_Model.hostelName!,
-                        style: theme.textTheme.titleSmall,
-                        // textAlign: TextAlign.right,
-                      ),
-                    Text(
-
-                      "$date | $time",
-                      style: theme.textTheme.bodySmall,
-                      // textAlign: TextAlign.right,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            Divider(
-              thickness: 1,
-              color: Colors.grey.shade600,
-            ),
-            Column(children: [
-              ...List.generate(
-                requestedOrders_Model.orderItems!.length,
-                (index) => foodRow(
-                  theme: theme,
-                  foodItem: requestedOrders_Model.orderItems![index],
-                ),
-              ),
-            ]),
-            Divider(
-              thickness: 1,
-              color: Colors.grey.shade600,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "₹ ${requestedOrders_Model.totalMRP}",
-                      style: theme.textTheme.labelLarge,
-                    ),
-                    Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 10.w, vertical: 2),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                            width: 2,
-                            color: requestedOrders_Model.isCash == false
-                                ? Colors.red
-                                : Colors.blue),
-                      ),
-                      child: Text(
-                        requestedOrders_Model.isCash == false
-                            ? "Online"
-                            : "Cash",
-                        style: TextStyle(
-                          color: requestedOrders_Model.isCash == false
-                              ? Colors.red
-                              : Colors.blue,
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w700,
-                          fontFamily: 'BentonSans_Bold',
-                        ),
-                        // textAlign: TextAlign.right,
-                      ),
-                    ),
-                  ],
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Row(
-                      children: [
-                        TextButton(
-                          onPressed: reject,
-                          child: Text(
-                            "Reject",
-                            style: theme.textTheme.titleSmall,
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 10.w, vertical: 5.h),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 5.w,
-                        ),
-                        TextButton(
-                          onPressed: accept,
-                          child: Text(
-                            "Accept",
-                            style: theme.textTheme.titleSmall,
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 10.w, vertical: 5.h),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Text(
-                      requestedOrders_Model.orderID!,
-                      style: theme.textTheme.bodySmall,
-                      // textAlign: TextAlign.right,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Row foodRow(
-      {required ThemeData theme, required Map<String, dynamic> foodItem}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(
-              Icons.food_bank_rounded,
-              color: Colors.green,
-            ),
-            SizedBox(
-              width: 5,
-            ),
-            SizedBox(
-              width: 90.w,
-              child: Text(
-                foodItem['Name'],
-                style: theme.textTheme.labelSmall,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 3,
-              ),
-            ),
-          ],
-        ),
-        SizedBox(
-          width: 25.w,
-          child: Text(
-            foodItem['Quantity'].toString(),
-            style: theme.textTheme.labelSmall,
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
-          ),
-        ),
-        SizedBox(
-          width: 50.w,
-          child: Text(
-            "₹ ${foodItem['Price']}",
-            style: theme.textTheme.labelSmall,
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
-            textAlign: TextAlign.right,
-          ),
-        ),
-      ],
+      backgroundColor: theme.colorScheme.background,
+      body: OrderScreens[currentBNIndex],
+      
     );
   }
 
@@ -820,4 +123,53 @@ class _store_OrdersScreenState extends State<store_OrdersScreen> {
   }
 
   List<String> Tabs = ["Requested", "Current", "Past"];
+}
+
+Row foodRow(
+    {required ThemeData theme, required Map<String, dynamic> foodItem}) {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            Icons.food_bank_rounded,
+            color: Colors.green,
+          ),
+          SizedBox(
+            width: 5,
+          ),
+          SizedBox(
+            width: 90.w,
+            child: Text(
+              foodItem['Name'],
+              style: theme.textTheme.labelSmall,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 3,
+            ),
+          ),
+        ],
+      ),
+      SizedBox(
+        width: 25.w,
+        child: Text(
+          foodItem['Quantity'].toString(),
+          style: theme.textTheme.labelSmall,
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
+        ),
+      ),
+      SizedBox(
+        width: 50.w,
+        child: Text(
+          "₹ ${foodItem['Price']}",
+          style: theme.textTheme.labelSmall,
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
+          textAlign: TextAlign.right,
+        ),
+      ),
+    ],
+  );
 }

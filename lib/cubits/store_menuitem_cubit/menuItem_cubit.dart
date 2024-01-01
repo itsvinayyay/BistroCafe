@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:food_cafe/data/models/CartScreen_FoodCard.dart';
+
 import 'package:food_cafe/data/models/store_OrderCard_Models.dart';
 
 class MenuItems extends Cubit<List<store_MenuItemsCard_Model>> {

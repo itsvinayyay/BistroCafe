@@ -16,8 +16,8 @@ Stack foodCard(
             borderRadius: BorderRadius.circular(20),
           ),
           // height: 184.h,
-          width: 147.w,
-          height: 202.h,
+          width: 147,
+          height: 202,
 
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

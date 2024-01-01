@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_cafe/cubits/login_cubit/login_state.dart';
@@ -15,36 +17,80 @@ class LoginCubit extends Cubit<LoginState> {
   late String storeID;
 
   void initializeLogin() async {
-    User? currentuser = _auth.currentUser;
-    bool isUser = await getBoolPreference();
+    Future.delayed(Duration(seconds: 10), () async {
+      User? currentuser = _auth.currentUser;
+      bool isUser = await getBoolPreference();
 
-    if (currentuser != null && currentuser!.emailVerified == false) {
-      emit(LoginrequiredVerificationState(
-        firebaseUser: currentuser,
-        isUser: isUser,
-      ));
-    } else if (currentuser != null) {
-      emit(LoginLoggedInState(firebaseUser: currentuser, isUser: isUser));
-      final userEmail = (state as LoginLoggedInState).firebaseUser.email;
-      String rollNo = "";
-      for (int i = 0; i < userEmail!.length; i++) {
-        if (userEmail[i] == '@') {
-          break;
+      if (currentuser != null) {
+        String personID = _getPersonID(email: currentuser.email!);
+        if (currentuser.emailVerified) {
+          if (isUser) {
+            emit(LoginLoggedInState(firebaseUser: currentuser, isUser: isUser));
+          } else {
+            String storeNumber = await _getStoreID(personID: personID);
+            emit(
+              CafeLoginLoadedState(
+                  firebaseUser: currentuser,
+                  storeID: storeNumber,
+                  personID: personID),
+            );
+          }
+        } else {
+          if (isUser) {
+            emit(
+              LoginrequiredVerificationState(
+                  firebaseUser: currentuser, isUser: isUser),
+            );
+          } else {
+            String storeNumber = await _getStoreID(personID: personID);
+            emit(CafeLoginRequiredVerificationState(
+                firebaseUser: currentuser,
+                storeID: storeNumber,
+                personID: personID));
+          }
         }
-        rollNo = rollNo + userEmail[i];
+      } else {
+        emit(LoginLoggedOutState());
       }
-      rollNo.toLowerCase();
-      print(rollNo);
-      storeID = await getStoreID(rollNo);
-    } else {
-      emit(LoginLoggedOutState());
-    }
+
+      // if (currentuser != null && currentuser.emailVerified == false) {
+      //   emit(
+      //     LoginrequiredVerificationState(
+      //       firebaseUser: currentuser,
+      //       isUser: isUser,
+      //     ),
+      //   );
+      // } else if (currentuser != null) {
+      //   emit(LoginLoggedInState(firebaseUser: currentuser, isUser: isUser));
+      //   // final userEmail = (state as LoginLoggedInState).firebaseUser.email;
+      //   // String rollNo = "";
+      //   // for (int i = 0; i < userEmail!.length; i++) {
+      //   //   if (userEmail[i] == '@') {
+      //   //     break;
+      //   //   }
+      //   //   rollNo = rollNo + userEmail[i];
+      //   // }
+      //   // rollNo.toLowerCase();
+      //   // print(rollNo);
+      //   // storeID = await getStoreID(rollNo);
+      // } else {
+      //   emit(LoginLoggedOutState());
+      // }
+    });
   }
 
-  // String definedRole = "";
-  // void getDefinedRole(String ID) async{
-  //   final snapshotRef = FirebaseFirestore.instance.collection('User');
-  // }
+  String _getPersonID({required String email}) {
+    String personID = "";
+    for (int i = 0; i < email.length; i++) {
+      if (email[i] == '@') {
+        break;
+      }
+      personID += email[i];
+    }
+    personID.toLowerCase();
+    return personID;
+  }
+
   Future<bool> getBoolPreference() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool('isUser') ??
@@ -70,15 +116,15 @@ class LoginCubit extends Cubit<LoginState> {
           String storeID = data!['CafeID'];
           return storeID;
         } else {
-          print("Cafe Owner Doesn't exists!");
+          log("Cafe Owner Doesn't exists!");
           return "Error0";
         }
       } else {
-        print("Person is the User not Cafe Owner while fetching Store ID");
+        log("Person is the User not Cafe Owner while fetching Store ID");
         return "Error1";
       }
     } else {
-      print("Not Logged In while fetching Store ID");
+      log("Not Logged In while fetching Store ID");
       return "Error2";
     }
   }
@@ -86,15 +132,15 @@ class LoginCubit extends Cubit<LoginState> {
   String getEntryNo() {
     if (state is LoginLoggedInState) {
       final userEmail = (state as LoginLoggedInState).firebaseUser.email;
-      String rollNo = "";
+      String personID = "";
       for (int i = 0; i < userEmail!.length; i++) {
         if (userEmail[i] == '@') {
           break;
         }
-        rollNo = rollNo + userEmail[i];
+        personID = personID + userEmail[i];
       }
-      rollNo.toLowerCase();
-      return rollNo;
+      personID.toLowerCase();
+      return personID;
     } else if (state is LoginrequiredVerificationState) {
       final userEmail =
           (state as LoginrequiredVerificationState).firebaseUser.email;
@@ -135,26 +181,25 @@ class LoginCubit extends Cubit<LoginState> {
         String personID = getPersonID(email);
         bool definedRole_User = await isDefinedRole_User(personID);
         if (_auth.currentUser!.emailVerified) {
-
-          if(definedRole_User){
+          if (definedRole_User) {
             await setBoolPreference(true);
             emit(LoginLoggedInState(
                 firebaseUser: userCredential.user!, isUser: true));
+          } else {
+            emit(LoginErrorState(
+                error: "You're not a 'User', proceed with other Roles!"));
           }
-          else{
-            emit(LoginErrorState(error: "You're not a 'User', proceed with other Roles!"));
-          }
-        }
-        else {
+        } else {
           //TODO check here also if the person is User or CafeOwner
-          if(definedRole_User){
+          if (definedRole_User) {
             await userCredential.user!.sendEmailVerification();
             await setBoolPreference(true);
             emit(LoginrequiredVerificationState(
                 firebaseUser: userCredential.user!, isUser: true));
-          }
-          else{
-            emit(LoginErrorState(error: "You're not a User and your email is not verified, Try with other roles."));
+          } else {
+            emit(LoginErrorState(
+                error:
+                    "You're not a User and your email is not verified, Try with other roles."));
           }
         }
       }
@@ -163,9 +208,10 @@ class LoginCubit extends Cubit<LoginState> {
     }
   }
 
-  //Method to Sign In a User!
-  void store_signinwith_Email(String Email, String Password) async {
-    emit(LoginLoadingState());
+  //Method to Sign In a Cafe Owner!
+  void cafe_signinwith_Email(String Email, String Password) async {
+    // emit(LoginLoadingState());
+    emit(CafeLoginLoadingState());
     try {
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
           email: Email, password: Password);
@@ -176,29 +222,50 @@ class LoginCubit extends Cubit<LoginState> {
         String personID = getPersonID(email);
         bool definedRole_cafeOwner = await isDefinedRole_cafeOwner(personID);
         //Checking if the person's email is Verified or not?
-        if (_auth.currentUser!.emailVerified) {
-
-          //Checking if the person is cafeOwner or not?
-          if(definedRole_cafeOwner){
-            await setBoolPreference(false);
-            emit(LoginLoggedInState(
-                firebaseUser: userCredential.user!, isUser: false));
-          }
-          else{
-            emit(LoginErrorState(error: "You are not a 'Cafe Owner', try for other roles!"));
-          }
-
-        }
-        else {
-          if(definedRole_cafeOwner){
+        // if (_auth.currentUser!.emailVerified) {
+        //   //Checking if the person is cafeOwner or not?
+        //   if (definedRole_cafeOwner) {
+        //     String
+        //     // await setBoolPreference(false);
+        //     emit(LoginLoggedInState(
+        //         firebaseUser: userCredential.user!, isUser: false));
+        //   } else {
+        //     emit(LoginErrorState(
+        //         error: "You are not a 'Cafe Owner', try for other roles!"));
+        //   }
+        // } else {
+        //   if (definedRole_cafeOwner) {
+        //     await userCredential.user!.sendEmailVerification();
+        //     await setBoolPreference(false);
+        //     emit(LoginrequiredVerificationState(
+        //         firebaseUser: userCredential.user!, isUser: false));
+        //   } else {
+        //     emit(LoginErrorState(
+        //         error:
+        //             "You're not a 'Cafe Owner' and your email is also not verified!"));
+        //   }
+        // }
+        if (definedRole_cafeOwner) {
+          String storeID = await _getStoreID(personID: personID);
+          log("This is the Store ID");
+          log(storeID);
+          await setBoolPreference(false);
+          log("The user is cafe Owner");
+          if (_auth.currentUser!.emailVerified) {
+            log("Email is Verified");
+            emit(CafeLoginLoadedState(
+                firebaseUser: userCredential.user!,
+                storeID: storeID,
+                personID: personID));
+          } else {
             await userCredential.user!.sendEmailVerification();
-            await setBoolPreference(false);
-            emit(LoginrequiredVerificationState(
-                firebaseUser: userCredential.user!, isUser: false));
+            emit(CafeLoginRequiredVerificationState(
+                firebaseUser: userCredential.user!,
+                storeID: storeID,
+                personID: personID));
           }
-          else{
-            emit(LoginErrorState(error: "You're not a 'Cafe Owner' and your email is also not verified!"));
-          }
+        } else {
+          emit(CafeLoginErrorState(error: "You're not a Cafe Owner"));
         }
       }
     } on FirebaseAuthException catch (exception) {
@@ -225,11 +292,11 @@ class LoginCubit extends Cubit<LoginState> {
 
         //Adding a documnet in 'Users' collection
         _firestore.collection('Users').doc('SMVDU$personID').set({
-          'Name' : Name,
-          'DefinedRole' : 'User',
-          'PersonID' : personID,
-          'Email' : email,
-          'UID' : uid,
+          'Name': Name,
+          'DefinedRole': 'User',
+          'PersonID': personID,
+          'Email': email,
+          'UID': uid,
         });
 
         //Sending user the verification link
@@ -283,46 +350,25 @@ class LoginCubit extends Cubit<LoginState> {
 
       await _auth.currentUser!.reload();
       User user = _auth.currentUser!;
-      // print("verification ${_auth.currentUser!.emailVerified}");
-      // User user = _auth.currentUser!;
-      //
-      // await Future.delayed(Duration(seconds: 5));
-      //
-      //
-      // if (user.emailVerified) {
-      //   print("User Verified!!");
-      // } else {
-      //   print("User Not Verified!!!!!!!!!!!!!!!!!!!!!!!!");
-      // }
       if (user.emailVerified) {
         try {
-          if (user != null) {
+          String firestoreName = "";
 
-
-            String firestoreName = "";
-
-            final docUser = FirebaseFirestore.instance
-                .collection("CafeOwner")
-                .doc("SMVDU$ID");
-            final docUserSnapshot = await docUser.get();
-            if (docUserSnapshot.exists) {
-              final data = docUserSnapshot.data();
-              firestoreName = data!['Name'];
-            }
-            user.updateDisplayName(firestoreName);
-            String uid = user.uid;
-            String email = user.email!;
-
-            final json = {
-              "Email": email,
-              "UID": uid,
-              "DefinedRole": "cafeOwner"
-            };
-            await docUser.update(json);
-            emit(LoginLoggedInState(firebaseUser: user, isUser: false));
-          } else {
-            print("Current user is NULL!");
+          final docUser = FirebaseFirestore.instance
+              .collection("CafeOwner")
+              .doc("SMVDU$ID");
+          final docUserSnapshot = await docUser.get();
+          if (docUserSnapshot.exists) {
+            final data = docUserSnapshot.data();
+            firestoreName = data!['Name'];
           }
+          user.updateDisplayName(firestoreName);
+          String uid = user.uid;
+          String email = user.email!;
+
+          final json = {"Email": email, "UID": uid, "DefinedRole": "cafeOwner"};
+          await docUser.update(json);
+          emit(LoginLoggedInState(firebaseUser: user, isUser: false));
         } catch (exception) {
           print(exception);
           emit(LoginErrorState(error: exception.toString()));
@@ -335,33 +381,59 @@ class LoginCubit extends Cubit<LoginState> {
     }
   }
 
-  String getPersonID(String email){
+  Future<String> _getCafeOwnerName(String personID) async {
+    try {
+      DocumentSnapshot documentSnapshot =
+          await _firestore.collection('CafeOwner').doc('SMVDU$personID').get();
+      String cafeOwnerName = documentSnapshot['Name'];
+      return cafeOwnerName;
+    } catch (e) {
+      log("Exception while retrieving name of the CafeOwner in LoginCubit!");
+      rethrow;
+    }
+  }
+
+  Future<String> _getStoreID({required String personID}) async {
+    try {
+      final docSnapshot =
+          await _firestore.collection('CafeOwner').doc('SMVDU$personID').get();
+      String storeID = docSnapshot['CafeID'];
+      log(storeID);
+      return storeID;
+    } catch (e) {
+      log('Got Exception while fetching Store ID from Firestore');
+      rethrow;
+    }
+  }
+
+  String getPersonID(String email) {
     String id = "";
 
-    for(int i=0; i<email.length; i++){
-      if(email[i] == '@'){
+    for (int i = 0; i < email.length; i++) {
+      if (email[i] == '@') {
         break;
       }
-      id+=email[i];
+      id += email[i];
     }
     return id;
   }
 
-  Future<bool> isDefinedRole_User(String personID) async{
-    final documentSnapshot = await _firestore.collection('Users').doc('SMVDU$personID').get();
-    if(documentSnapshot.exists){
+  Future<bool> isDefinedRole_User(String personID) async {
+    final documentSnapshot =
+        await _firestore.collection('Users').doc('SMVDU$personID').get();
+    if (documentSnapshot.exists) {
       return true;
-    }
-    else{
+    } else {
       return false;
     }
   }
-  Future<bool> isDefinedRole_cafeOwner(String personID) async{
-    final documentSnapshot = await _firestore.collection('CafeOwner').doc('SMVDU$personID').get();
-    if(documentSnapshot.exists){
+
+  Future<bool> isDefinedRole_cafeOwner(String personID) async {
+    final documentSnapshot =
+        await _firestore.collection('CafeOwner').doc('SMVDU$personID').get();
+    if (documentSnapshot.exists) {
       return true;
-    }
-    else{
+    } else {
       return false;
     }
   }
@@ -378,7 +450,6 @@ class TimerCubit extends Cubit<bool> {
   void enableResendButton() {
     emit(true);
   }
-
 }
 
 class ResendVerificationCubit extends Cubit<bool> {
@@ -395,31 +466,10 @@ class ResendVerificationCubit extends Cubit<bool> {
   }
 }
 
-class SignInErrorsCubit extends Cubit<List<String>>{
-  SignInErrorsCubit() : super([]);
-
-
-  void addSignInError(String error){
-    state.add(error);
-    emit(state);
-  }
-
-  void removeSignInError(String error){
-    state.remove(error);
-    emit(state);
-  }
-
-  void deleteSignInError(String error){
-    state.clear();
-    emit(state);
-  }
-}
-
-class PasswordVisibility extends Cubit<bool>{
+class PasswordVisibility extends Cubit<bool> {
   PasswordVisibility() : super(true);
 
-  void toggleVisibility(){
-    print(!state);
+  void toggleVisibility() {
     emit(!state);
   }
 }

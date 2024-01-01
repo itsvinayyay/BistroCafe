@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:food_cafe/cubits/login_cubit/login_cubit.dart';
-import 'package:food_cafe/cubits/login_cubit/login_state.dart';
+
 import 'package:food_cafe/cubits/theme_cubit/theme_cubit.dart';
-import 'package:food_cafe/routes/named_routes.dart';
+import 'package:food_cafe/core/routes/named_routes.dart';
 import 'package:food_cafe/theme.dart';
 import 'package:food_cafe/widgets/custom_TextButton.dart';
 
