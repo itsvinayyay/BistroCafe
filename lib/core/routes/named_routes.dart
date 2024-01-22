@@ -26,4 +26,15 @@ class Routes {
   static const String orderPlaced  = "./orderPlaced";
   static const String orderRequestScreen  = "./orderRequestScreen";
   static const String paymentScreen  = "./paymentScreen";
+  static const String analyticsScreen  = "./analyticsScreen";
+  static const String forgotPasswordScreen  = "./forgotPasswordScreen";
+  static const String forgotPasswordSuccessScreen  = "./forgotPasswordSuccessScreen";
+  static const String settingsScreen  = "./settingsScreen";
+  static const String changePasswordScreen  = "./changePasswordScreen";
+  static const String changePasswordSuccessScreen  = "./changePasswordSuccessScreen";
+  static const String deactivateAccountScreen  = "./deactivateAccountScreen";
+  static const String store_profileScreen  = "./store_profileScreen";
+  static const String changeUserDetailsScreen  = "./changeUserDetailsScreen";
+  static const String changeUserDetailsSuccessScreen  = "./changeUserDetailsSuccessScreen";
+  static const String orderHistoryScreen  = "./orderHistoryScreen";
 }

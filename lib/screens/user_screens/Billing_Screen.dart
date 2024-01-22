@@ -9,6 +9,7 @@ import 'package:food_cafe/cubits/billing_cubit/billing_cubit.dart';
 import 'package:food_cafe/cubits/billing_cubit/priceCalculation_cubit/priceCalculation_cubit.dart';
 import 'package:food_cafe/cubits/billing_cubit/priceCalculation_cubit/priceCalculation_states.dart';
 import 'package:food_cafe/cubits/login_cubit/login_cubit.dart';
+import 'package:food_cafe/cubits/login_cubit/login_state.dart';
 import 'package:food_cafe/cubits/theme_cubit/theme_cubit.dart';
 import 'package:food_cafe/data/services/notification_services.dart';
 import 'package:food_cafe/core/routes/named_routes.dart';
@@ -30,7 +31,7 @@ class _BillingScreenState extends State<BillingScreen> {
   int pagenumber = 0;
   int _currentpage = 0;
   final PageController _pageController = PageController(initialPage: 0);
-  late String entryNo;
+  late String personID;
 
   @override
   void initState() {
@@ -38,8 +39,14 @@ class _BillingScreenState extends State<BillingScreen> {
     super.initState();
     billingCheckOutCubit = BlocProvider.of<BillingCheckOutCubit>(context);
 
-    entryNo = context.read<LoginCubit>().getEntryNo();
-    context.read<BillingCubit>().calculateSubtotal(entryNo, true);
+    final state = context.read<LoginCubit>().state;
+    if (state is LoginLoggedInState) {
+      personID = state.personID;
+    } else {
+      log("Some State Error Occured in Billing Screen");
+      personID = "error";
+    }
+    context.read<BillingCubit>().calculateSubtotal(personID, true);
     _timer = Timer.periodic(Duration(seconds: 5), (timer) {
       if (_currentpage < 3) {
         _currentpage++;
@@ -96,7 +103,7 @@ class _BillingScreenState extends State<BillingScreen> {
                     context: context,
                     hostelName: hostelName,
                     customerName: customerName!,
-                    personID: entryNo));
+                    personID: personID));
           },
           child: Text(
             "Checkout!",
@@ -242,7 +249,7 @@ class _BillingScreenState extends State<BillingScreen> {
                                 .toggleDineIn(true);
                             context
                                 .read<BillingCubit>()
-                                .calculateSubtotal(entryNo, true);
+                                .calculateSubtotal(personID, true);
                           }
                         },
                         child: Container(
@@ -269,7 +276,7 @@ class _BillingScreenState extends State<BillingScreen> {
                                 .toggleDineIn(false);
                             context
                                 .read<BillingCubit>()
-                                .calculateSubtotal(entryNo, false);
+                                .calculateSubtotal(personID, false);
                           }
                         },
                         child: Container(
@@ -484,6 +491,8 @@ class _BillingScreenState extends State<BillingScreen> {
       required String personID,
       required ThemeData theme,
       required BuildContext context}) {
+    isCash = isDineIn == false ? false : isCash;
+    
     String modeofPayment = isCash == true ? "Cash" : "Online";
     return AlertDialog(
       backgroundColor: theme.colorScheme.secondary,
@@ -514,16 +523,13 @@ class _BillingScreenState extends State<BillingScreen> {
             return TextButton(
                 onPressed: () {
                   notificationServices.getDeviceToken().then((value) async {
-                    if (isDineIn == false) {
-                      isCash = false;
-                    }
-
-                    billingCheckOutCubit.billingCheckout(
+                    await billingCheckOutCubit.billingCheckout(
                         customerName: customerName,
                         personID: personID,
                         totalMRP: total,
                         isDineIn: isDineIn,
                         isCash: isCash,
+                        
                         storeID: "SMVDU101",
                         hostelName: hostelName,
                         userTokenID: value);
@@ -535,7 +541,8 @@ class _BillingScreenState extends State<BillingScreen> {
             if (state is BillingCheckoutLoadedState) {
               log("state is BillingCheckOutLoaded State");
               Navigator.pushNamedAndRemoveUntil(
-                  context, Routes.orderRequestScreen, (route) => false, arguments: isCash);
+                  context, Routes.orderRequestScreen, (route) => false,
+                  arguments: isCash);
             } else if (state is BillingCheckoutErrorState) {
               Navigator.pop(context);
               ScaffoldMessenger.of(context)

@@ -22,6 +22,7 @@ class _RequestedOrdersScreenState extends State<RequestedOrdersScreen> {
   @override
   void initState() {
     // TODO: implement initState
+    //TODO: Make the Store ID dynamic
     super.initState();
     requestedOrdersCubit = BlocProvider.of<RequestedOrdersCubit>(context);
     requestedOrdersCubit.initialize('SMVDU101');
@@ -60,7 +61,7 @@ class _RequestedOrdersScreenState extends State<RequestedOrdersScreen> {
                 builder: (context, state) {
               if (state is RequestedLoadingState) {
                 return Center(
-                  child: CircularProgressIndicator(color: Colors.black),
+                  child: CircularProgressIndicator(color: Colors.white),
                 );
               } else if (state is RequestedErrorState) {
                 return Center(
@@ -81,7 +82,12 @@ class _RequestedOrdersScreenState extends State<RequestedOrdersScreen> {
                           //TODO Change the hardcoded SMVDU101TRX1!
                           requestedOrdersCubit.accept_requested_Order(
                               orderID: state.orders[index].orderID!,
-                              tokenID: state.orders[index].tokenID!);
+                              tokenID: state.orders[index].tokenID!,
+                              isPaid: state.orders[index].isPaid!,
+                              storeID: state.orders[index].storeID!,
+                              price: state.orders[index].totalMRP!,
+                              orderedItems: state.orders[index].orderItems!
+                              );
                         },
                         reject: () {
                           //TODO Add Notification functionlity to inform the user
@@ -208,14 +214,14 @@ Card requestedOrders_Card(
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
                           width: 2,
-                          color: requestedOrders_Model.isCash == false
+                          color: requestedOrders_Model.isPaid == false
                               ? Colors.red
                               : Colors.blue),
                     ),
                     child: Text(
-                      requestedOrders_Model.isCash == false ? "Online" : "Cash",
+                      requestedOrders_Model.isPaid == false ? "Online" : "Cash",
                       style: TextStyle(
-                        color: requestedOrders_Model.isCash == false
+                        color: requestedOrders_Model.isPaid == false
                             ? Colors.red
                             : Colors.blue,
                         fontSize: 14.sp,

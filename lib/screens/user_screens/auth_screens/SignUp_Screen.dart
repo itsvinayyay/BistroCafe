@@ -23,10 +23,26 @@ class _SignUpState extends State<SignUp> {
   TextEditingController _passwordController = TextEditingController();
   TextEditingController _confirmPasswordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-
-  //TODO: Make these variables more relevant
-  bool ispasswordVisible = false;
-  bool isconfirmpasswordVisible = true;
+  late LoginCubit loginCubit;
+  
+  late PasswordVisibility passwordVisibility;
+  late ConfirmPasswordVisibility confirmPasswordVisibility;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    loginCubit = BlocProvider.of<LoginCubit>(context);
+    passwordVisibility = BlocProvider.of<PasswordVisibility>(context);
+    confirmPasswordVisibility =
+        BlocProvider.of<ConfirmPasswordVisibility>(context);
+  }
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    passwordVisibility.close();
+    confirmPasswordVisibility.close();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,12 +112,8 @@ class _SignUpState extends State<SignUp> {
                     hintText: "Password",
                     controller: _passwordController,
                     prefixIcon: "lock",
-                    // onTap: () => setState(() {
-                    //       ispasswordVisible = !ispasswordVisible;
-                    //     }),
                     onTap: () {
-                      BlocProvider.of<PasswordVisibility>(context)
-                          .toggleVisibility();
+                      passwordVisibility.toggleVisibility();
                     },
                     obscure: context.watch<PasswordVisibility>().state,
                     validator: (value) {
@@ -121,9 +133,8 @@ class _SignUpState extends State<SignUp> {
                       hintText: "Confirm Password",
                       controller: _confirmPasswordController,
                       prefixIcon: "lock",
-                      onTap: () => BlocProvider.of<PasswordVisibility>(context)
-                          .toggleVisibility(),
-                      obscure: context.watch<PasswordVisibility>().state,
+                      onTap: () => confirmPasswordVisibility.toggleVisibility(),
+                      obscure: context.watch<ConfirmPasswordVisibility>().state,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return kconfpassnull;
@@ -138,8 +149,8 @@ class _SignUpState extends State<SignUp> {
                   ),
                   BlocConsumer<LoginCubit, LoginState>(
                     listener: (context, state) {
-                      if (state is LoginrequiredVerificationState) {
-                        Navigator.pushNamed(context, Routes.signupVerification);
+                      if (state is LoginRequiredVerificationState) {
+                        Navigator.pushReplacementNamed(context, Routes.signupVerification);
                       } else if (state is LoginErrorState) {
                         ScaffoldMessenger.of(context)
                             .showSnackBar(SnackBar(content: Text(state.error)));
@@ -148,7 +159,7 @@ class _SignUpState extends State<SignUp> {
                     builder: (context, state) {
                       if (state is LoginLoadingState) {
                         return Center(
-                          child: CircularProgressIndicator(),
+                          child: CircularProgressIndicator(color: theme.colorScheme.tertiary,),
                         );
                       }
                       return customButton(
@@ -156,11 +167,10 @@ class _SignUpState extends State<SignUp> {
                           theme: theme,
                           onPressed: () {
                             if (_formKey.currentState!.validate()) {
-                              BlocProvider.of<LoginCubit>(context)
-                                  .signupwith_Email(
-                                      _emailController.text,
-                                      _passwordController.text,
-                                      _nameController.text);
+                              loginCubit.signupwith_Email(
+                                  email: _emailController.text.trim(),
+                                  password: _passwordController.text.trim(),
+                                  name: _nameController.text.trim());
                             }
                           },
                           title: "Create Account");

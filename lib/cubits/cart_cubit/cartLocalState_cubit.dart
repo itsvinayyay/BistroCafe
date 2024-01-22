@@ -10,31 +10,6 @@ class CartLocalState extends Cubit<Map<String, int>> {
   CartLocalState() : super({});
 
   int totalMRP = 0;
-  //
-  // Future<void> calculateTotal(String userID) async{
-  //   final collectionRef = FirebaseFirestore.instance
-  //       .collection('Users')
-  //       .doc('SMVDU$userID')
-  //       .collection('cartitem');
-  //   try{
-  //     log("Calculating");
-  //     int total = 0;
-  //     for(var entry in state.entries){
-  //       String itemID = entry.key;
-  //       int quantity = entry.value;
-  //       final docRef = await collectionRef.doc(itemID).get();
-  //       int mrp = docRef['Price'];
-  //       total += quantity * mrp;
-  //     }
-  //     totalMRP = total;
-  //     emit(state);
-  //   } catch (e) {
-  //     log('Error getting totalMRP with Firestore: $e');
-  //   }
-  //
-  //   log(totalMRP);
-  //
-  // }
 
   Future<void> initializefromFirebase(String userID) async {
     try {

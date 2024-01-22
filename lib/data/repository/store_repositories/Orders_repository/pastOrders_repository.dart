@@ -1,48 +1,36 @@
-
-
 import 'dart:async';
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:food_cafe/data/models/All_Orders_Models.dart';
+import 'package:food_cafe/utils/payment_status.dart';
 
-class PastOrdersRepository{
-final _firestore = FirebaseFirestore.instance;
-  final _pastOrdersController = StreamController<List<Orders_Model>>();
-
-  Stream<List<Orders_Model>> get getOrdersStream =>
-      _pastOrdersController.stream;
-
-  StreamSubscription<QuerySnapshot?>? _subscription;
-
+class PastOrdersRepository {
+  final _firestore = FirebaseFirestore.instance;
   
 
-  void getPastOrders(String storeID) {
+  Future<List<Orders_Model>> getPastOrders({required String storeID}) async {
     log('Fetching Past Orders');
     try {
       final collectionRef = _firestore
           .collection('groceryStores')
           .doc(storeID)
           .collection('requestedOrders')
-          .where('OrderStatus', isEqualTo: 'Prepared');
+          .where('OrderStatus',
+              whereIn: [OrderStatus.prepared, OrderStatus.rejected]);
 
-      _subscription = collectionRef.snapshots().listen((querySnapshot) {
-        final orderItems = querySnapshot.docs
-            .map((docs) => Orders_Model.fromJson(docs.data()))
-            .toList();
+      QuerySnapshot querySnapshot = await collectionRef.get();
 
-        _pastOrdersController.add(orderItems);
-      });
+      return querySnapshot.docs
+          .map((docs) => Orders_Model.fromJson(docs.data() as Map<String, dynamic>))
+          .toList();
+
+          
     } catch (e) {
       log("Error while fetching Past Orders (Error from Repository) $e");
       rethrow;
     }
   }
 
-
-  void closeSubscription() {
-    _subscription?.cancel();
-    _pastOrdersController.close();
-  }
+  
 }
-

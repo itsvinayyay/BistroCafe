@@ -18,8 +18,11 @@ class SignUpVerification extends StatefulWidget {
 }
 
 class _SignUpVerificationState extends State<SignUpVerification> {
-  late String entryNo;
-  bool isUser = true;
+  late String personID;
+  late String storeID;
+  late LoginCubit loginCubit;
+  late ResendVerificationCubit resendVerificationCubit;
+  late bool isUser;
   Timer? _timer;
 
   void startTimer() {
@@ -32,13 +35,19 @@ class _SignUpVerificationState extends State<SignUpVerification> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-
-    entryNo = context.read<LoginCubit>().getEntryNo();
+    //Cubit Initialization
+    resendVerificationCubit = BlocProvider.of<ResendVerificationCubit>(context);
+    loginCubit = BlocProvider.of<LoginCubit>(context);
     final state = context.read<LoginCubit>().state;
-    if(state is CafeLoginRequiredVerificationState){
+    //Checking if the User is User or a  Store Owner...
+    if (state is CafeLoginRequiredVerificationState) {
       isUser = false;
+      storeID = state.storeID;
+      personID = state.personID;
+    } else if (state is LoginRequiredVerificationState) {
+      isUser = true;
+      personID = state.personID;
     }
     startTimer();
   }
@@ -51,8 +60,6 @@ class _SignUpVerificationState extends State<SignUpVerification> {
 
   @override
   Widget build(BuildContext context) {
-
-
     final themeMode = context.watch<ThemeCubit>().state;
     final ThemeData theme = themeMode == MyTheme.dark ? darkTheme : lightTheme;
     return Scaffold(
@@ -89,7 +96,7 @@ class _SignUpVerificationState extends State<SignUpVerification> {
                           style: theme.textTheme.bodyLarge,
                         ),
                         Text(
-                          entryNo,
+                          personID,
                           style: theme.textTheme.labelLarge,
                         ),
                       ],
@@ -118,8 +125,9 @@ class _SignUpVerificationState extends State<SignUpVerification> {
                   listener: (context, state) {
                     if (state is LoginLoggedInState) {
                       Navigator.pushNamedAndRemoveUntil(
-                          context, Routes.signUpSuccess, (route) => false, arguments: isUser);
-                    } else if (state is LoginuserNotVerifiedState) {
+                          context, Routes.signUpSuccess, (route) => false,
+                          arguments: isUser);
+                    } else if (state is LoginUserNotVerifiedState) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text("You're not verified!"),
@@ -145,9 +153,10 @@ class _SignUpVerificationState extends State<SignUpVerification> {
                         context: context,
                         theme: theme,
                         onPressed: () {
-                          isUser == true ? BlocProvider.of<LoginCubit>(context)
-                              .verifyUser(entryNo) : BlocProvider.of<LoginCubit>(context)
-                              .verifycafeOwner(entryNo);
+                          isUser == true
+                              ? loginCubit.verifyUser(personID: personID)
+                              : loginCubit.verifycafeOwner(
+                                  personID: personID, storeID: storeID);
                         },
                         title: "Verify");
                   },
@@ -187,12 +196,10 @@ class _SignUpVerificationState extends State<SignUpVerification> {
                         create: (context) => ResendVerificationCubit(),
                         child: BlocBuilder<ResendVerificationCubit, bool>(
                           builder: (context, state) {
-                            if(state == false){
+                            if (state == false) {
                               return TextButton(
                                 onPressed: () {
-                                  context
-                                      .read<ResendVerificationCubit>()
-                                      .resendVerification();
+                                  resendVerificationCubit.resendVerification();
                                 },
                                 // Button is inactive when _isButtonActive is false.
                                 child: Text(

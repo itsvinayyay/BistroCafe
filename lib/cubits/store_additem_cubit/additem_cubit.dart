@@ -8,7 +8,7 @@ import 'package:food_cafe/cubits/store_additem_cubit/additem_state.dart';
 import 'package:image_picker/image_picker.dart';
 
 class CategoryCubit extends Cubit<String> {
-  CategoryCubit() : super("Appetizer");
+  CategoryCubit({required String category}) : super(category);
 
   void toggleCategory(String received) {
     emit(received);
@@ -16,7 +16,7 @@ class CategoryCubit extends Cubit<String> {
 }
 
 class AvailableCubit extends Cubit<bool> {
-  AvailableCubit() : super(false);
+  AvailableCubit({required bool availability}) : super(availability);
 
   void toggleAvailibility(bool isavailable) {
     emit(isavailable);
@@ -35,7 +35,7 @@ class AddImageCubit extends Cubit<AddImage> {
       if (pickedFile != null) {
         emit(ImageLoadedState(File(pickedFile.path)));
       } else {
-        print("pickedFile is null!");
+        emit(ImageInitialState());
       }
     } catch (e) {
       print("Error from try Bloc!");
@@ -60,36 +60,37 @@ class AddItemCubit extends Cubit<AddItemState> {
     String downloadUrl = "";
     String? itemID = await readItemID(storeID);
     // Future.delayed(Duration(seconds: 5));
-    if(itemID!=null){
+    if (itemID != null) {
       print("Got the Item ID");
-    }
-    else{
+    } else {
       print("Item ID is null");
     }
-
 
     try {
       emit(AddItemLoadingState());
       String filePath = 'groceryStores/$storeID/menuItems/$itemID';
-      Reference storageReference = FirebaseStorage.instance.ref().child(
-          filePath);
+      Reference storageReference =
+          FirebaseStorage.instance.ref().child(filePath);
       UploadTask uploadTask = storageReference.putFile(imageFile);
-      await uploadTask.whenComplete(() =>
-          print("image Uploaded Successfully!"));
+      await uploadTask
+          .whenComplete(() => print("image Uploaded Successfully!"));
 
       downloadUrl = await storageReference.getDownloadURL();
       print('Got Download URL!');
       emit(AddItemImageUploadedState());
-    }
-    catch (exception) {
+    } catch (exception) {
       print("Exception called while uploading Image to Storage!!!!");
       emit(AddItemImageUpload_ErrorState(error: exception.toString()));
     }
 
     try {
       emit(AddItemLoadingState());
-      await FirebaseFirestore.instance.collection('groceryStores').doc(
-          storeID).collection('menuItems').doc(itemID).set({
+      await FirebaseFirestore.instance
+          .collection('groceryStores')
+          .doc(storeID)
+          .collection('menuItems')
+          .doc(itemID)
+          .set({
         'Name': name,
         'Price': mrp,
         'ItemID': itemID,
@@ -98,8 +99,7 @@ class AddItemCubit extends Cubit<AddItemState> {
         'ImageURL': downloadUrl
       });
       emit(AddItemUploadedState());
-    }
-    catch (exception){
+    } catch (exception) {
       print("Exception called while uploading data to Firestore!");
       print(exception);
       emit(AddItemErrorState(error: exception.toString()));
@@ -112,12 +112,11 @@ class AddItemCubit extends Cubit<AddItemState> {
       final snapshots = await docRef.get();
       if (snapshots.exists) {
         String? lastItemID = await snapshots.data()!['LastItem_ID'];
-        if(lastItemID!=null){
+        if (lastItemID != null) {
           String newItemID = _generateNextItemID(lastItemID);
           await docRef.update({'LastItem_ID': newItemID});
           return newItemID;
-        }
-        else{
+        } else {
           String initialItemID = '${storeID}ITEM1';
           await docRef.update({'LastItem_ID': initialItemID});
           return initialItemID;

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -17,14 +19,22 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  late String entryNo;
+  late String personID;
+  late String userName = "Some Person";
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    entryNo = context.read<LoginCubit>().getEntryNo();
+    final state = context.read<LoginCubit>().state;
+    if (state is LoginLoggedInState) {
+      personID = state.personID;
+    } else {
+      log("Some State Error Occured in Profile Screen");
+      personID = "error";
+    }
   }
+
   @override
   Widget build(BuildContext context) {
     final themeMode = context.watch<ThemeCubit>().state;
@@ -61,31 +71,24 @@ class _ProfilePageState extends State<ProfilePage> {
                     SizedBox(
                       height: 20,
                     ),
-                    BlocBuilder<LoginCubit, LoginState>(
-                        builder: (context, state) {
-                      if (state is LoginLoggedInState) {
-                        return Text(
-                          state.firebaseUser.displayName!,
-                          style: theme.textTheme.headlineMedium,
-                        );
-                      }
-                      return Center(
-                        child: CircularProgressIndicator(color: Colors.white,),
-                      );
-                    }),
+                    Text(
+                      userName,
+                      style: theme.textTheme.headlineMedium,
+                    ),
                     Text(
                       "Shri Mata Vaishno Devi University",
                       style: theme.textTheme.bodyLarge,
                     ),
                     Text(
-                      entryNo,
+                      personID,
                       style: theme.textTheme.labelLarge,
                     ),
                     SizedBox(
                       height: 10,
                     ),
-                    BlocConsumer<LoginCubit, LoginState>(builder: (context, state){
-                      if(state is LoginLoggedInState){
+                    BlocConsumer<LoginCubit, LoginState>(
+                        builder: (context, state) {
+                      if (state is LoginLoggedInState) {
                         return customButton(
                             context: context,
                             theme: theme,
@@ -95,11 +98,14 @@ class _ProfilePageState extends State<ProfilePage> {
                             title: "Log Out!");
                       }
                       return Center(
-                        child: CircularProgressIndicator(color: Colors.white,),
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                        ),
                       );
-                    }, listener: (context, state){
-                      if(state is LoginLoggedOutState){
-                        Navigator.pushNamedAndRemoveUntil(context, Routes.signIn, (route) => false);
+                    }, listener: (context, state) {
+                      if (state is LoginLoggedOutState) {
+                        Navigator.pushNamedAndRemoveUntil(
+                            context, Routes.signIn, (route) => false);
                       }
                     })
                   ],
@@ -114,75 +120,78 @@ class _ProfilePageState extends State<ProfilePage> {
                 SizedBox(
                   height: 10,
                 ),
-                Card(
-                  elevation: 8,
-                  shadowColor: theme.colorScheme.secondary,
-                  color: theme.colorScheme.primary,
-                  child: Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Dine-In",
-                          style: theme.textTheme.titleSmall,
-                        ),
-                        Text(
-                          "26 June 2023 | 12:05",
-                          style: theme.textTheme.bodySmall,
-                        ),
-                        Divider(
-                          thickness: 1,
-                          color: Colors.grey.shade600,
-                        ),
-                        Column(
-                          children: List.generate(
-                            history.length,
-                            (index) => itemOrdered(
-                              theme: theme,
-                              orderName: history[index]["orderName"],
-                              qty: history[index]["qty"],
-                            ),
-                          ),
-                        ),
-                        Divider(
-                          thickness: 1,
-                          color: Colors.grey.shade600,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "₹ 430",
-                              style: theme.textTheme.labelLarge,
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                Navigator.pushNamed(context, "");
-                              },
-                              child: Text(
-                                "Reorder",
-                                style: theme.textTheme.titleSmall,
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: theme.colorScheme.secondary,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 10.w, vertical: 5.h),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                )
+                _buildOrderHistoryCard(theme, context)
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Card _buildOrderHistoryCard(ThemeData theme, BuildContext context) {
+    return Card(
+      elevation: 8,
+      shadowColor: theme.colorScheme.secondary,
+      color: theme.colorScheme.primary,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Dine-In",
+              style: theme.textTheme.titleSmall,
+            ),
+            Text(
+              "26 June 2023 | 12:05",
+              style: theme.textTheme.bodySmall,
+            ),
+            Divider(
+              thickness: 1,
+              color: Colors.grey.shade600,
+            ),
+            Column(
+              children: List.generate(
+                history.length,
+                (index) => itemOrdered(
+                  theme: theme,
+                  orderName: history[index]["orderName"],
+                  qty: history[index]["qty"],
+                ),
+              ),
+            ),
+            Divider(
+              thickness: 1,
+              color: Colors.grey.shade600,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "₹ 430",
+                  style: theme.textTheme.labelLarge,
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, "");
+                  },
+                  child: Text(
+                    "Reorder",
+                    style: theme.textTheme.titleSmall,
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: theme.colorScheme.secondary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

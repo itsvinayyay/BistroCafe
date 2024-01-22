@@ -19,31 +19,26 @@ class Notifications extends StatelessWidget {
         child: SingleChildScrollView(
           physics: BouncingScrollPhysics(),
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 14.w),
+            padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 30),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(
-                  height: 20.h,
-                ),
                 customBackButton(context, theme),
                 SizedBox(
-                  height: 20.h,
+                  height: 10,
                 ),
-                SizedBox(
-                  height: 66.h,
-                  width: 264.w,
-                  child: Text(
-                    "Notification",
-                    style: theme.textTheme.titleMedium,
-                  ),
+                Text(
+                  'Notifications',
+                  style: theme.textTheme.titleMedium,
                 ),
+                SizedBox(height: 20,),
                 Container(
                   decoration: BoxDecoration(
                     color: theme.colorScheme.primary,
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 20.h),
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 15.w, vertical: 20.h),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,16 +47,19 @@ class Notifications extends StatelessWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Your Order has been accepted!", style: theme.textTheme.labelMedium,),
-                          Text("Recently", style: theme.textTheme.bodySmall,),
+                          Text(
+                            "Your Order has been accepted!",
+                            style: theme.textTheme.labelMedium,
+                          ),
+                          Text(
+                            "Recently",
+                            style: theme.textTheme.bodySmall,
+                          ),
                         ],
                       ),
                     ],
                   ),
                 ),
-
-
-
               ],
             ),
           ),
@@ -70,4 +68,3 @@ class Notifications extends StatelessWidget {
     );
   }
 }
-

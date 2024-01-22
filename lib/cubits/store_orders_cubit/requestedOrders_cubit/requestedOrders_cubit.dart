@@ -16,20 +16,7 @@ class RequestedOrdersCubit extends Cubit<RequestedOrdersState> {
       RequestedOrdersRepository();
   Api _api = Api();
 
-  // void startListening(String storeID) {
-  //   print("Started Listening for requestOrders!");
-  //   final collectionRef = _firestore
-  //       .collection('groceryStores')
-  //       .doc(storeID)
-  //       .collection('requestedOrders');
-  //   _subscription = collectionRef.snapshots().listen((snapshots) {
-  //     final requestedOrders = snapshots.docs
-  //         .map((doc) => RequestedOrders_Model.fromJson(doc.data()))
-  //         .toList();
-  //     print(requestedOrders.toString());
-  //     emit(requestedOrders);
-  //   });
-  // }
+  
 
   void initialize(String storeID) {
     emit(RequestedLoadingState(state.orders));
@@ -41,18 +28,18 @@ class RequestedOrdersCubit extends Cubit<RequestedOrdersState> {
         emit(RequestedLoadedState(orders));
       });
     } catch (e) {
-      log("Started Listening for Requested Orders");
+      log("Got the error in Requested Orders Cubit");
       emit(RequestedErrorState(state.orders, e.toString()));
     }
   }
 
   Future<void> accept_requested_Order(
-      {required String orderID, required String tokenID}) async {
+      {required String orderID, required String tokenID, required bool isPaid, required String storeID, required int price, required List<Map<String, dynamic>> orderedItems}) async {
     try {
-      requestedOrdersRepository.acceptCurrentOrder(orderID);
-      _api.sendMessage(
+      await requestedOrdersRepository.acceptCurrentOrder(isPaid: isPaid, orderID: orderID, storeID: storeID, price: price, orderedItems: orderedItems);
+      await _api.sendMessage(
           tokenID: tokenID,
-          title: 'Order Accpeted',
+          title: 'Order Accepted',
           description: 'Your Order has been accepted by the Cafe Owner!');
     } catch (e) {
       log("Exception Occured while Accpeting current Order => $e (thrown at Requested Orders Cubit)");
@@ -61,7 +48,7 @@ class RequestedOrdersCubit extends Cubit<RequestedOrdersState> {
 
   Future<void> reject_requested_Order({required String orderID, required String tokenID}) async {
     try {
-      requestedOrdersRepository.rejectCurrentOrder(orderID);
+      await requestedOrdersRepository.rejectCurrentOrder(orderID);
       _api.sendMessage(
           tokenID: tokenID,
           title: 'Order Rejected',

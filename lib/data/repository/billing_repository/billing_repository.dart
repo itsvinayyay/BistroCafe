@@ -3,34 +3,11 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:food_cafe/data/models/All_Orders_Models.dart';
+import 'package:food_cafe/data/repository/get_formatted_date_repository.dart';
 
 class BillingRepository {
   final _firestore = FirebaseFirestore.instance;
-
-  // Future<void> sendOrderRequest(
-  //     {required String title,
-  //     required String body,
-  //     required String storeID}) async {
-  //   try {
-  //     log("Sending Message");
-  //     String tokenID = await extractCafeOwnerTokenID(storeID);
-  //     await _api.sendRequest.post(
-  //       "",
-  //       data: jsonEncode({
-  //         'to': tokenID,
-  //         'priority': 'high',
-  //         'notification': {
-  //           'title': title,
-  //           'body': body,
-  //         }
-  //       }),
-  //     );
-  //   } catch (e) {
-  //     log("Error while Sending Error request to Cafe Owner! => $e");
-  //     rethrow;
-  //   }
-  // }
-
+  FormattedDate _formattedDate = FormattedDate();
   Future<String> extractCafeOwnerTokenID(String storeID) async {
     try {
       final docRef = _firestore.collection('groceryStores').doc(storeID);
@@ -43,7 +20,7 @@ class BillingRepository {
 
       return deviceToken;
     } catch (e) {
-      log("Issue while fetching the Token ID of Cafe Owner! => $e");
+      log("Issue while fetching the Token ID of Cafe Owner (Error from Billing Repository)");
       rethrow;
     }
   }
@@ -73,6 +50,7 @@ class BillingRepository {
         time: mytimeStamp,
         isDineIn: isDineIn,
         isCash: isCash,
+        isPaid: isCash ? true : false,
         storeID: storeID,
         hostelName: hostelName,
         tokenID: tokenID,
@@ -94,7 +72,101 @@ class BillingRepository {
         return ordID.toString();
       }
     } catch (e) {
-      log("Exception thrown while checking out Items from Billing Repository!");
+      log("Exception thrown while checking out Items (Error from Billing Repository)");
+      rethrow;
+    }
+  }
+
+  Future<void> updateOrderHistory(
+      {required String personID, required String orderID}) async {
+    try {
+      DocumentReference documentReference =
+          _firestore.collection('Users').doc('SMVDU$personID');
+
+      await documentReference.update({
+        'OrderIDs': FieldValue.arrayUnion([orderID])
+      });
+    } catch (e) {
+      log("Exception thrown while updating Order History of the User (Error from Billing Repository)");
+      rethrow;
+    }
+  }
+
+//TODO: Work in Progress!!!
+  Future<void> updateCart({required String personID}) async {
+    try {
+      CollectionReference collectionReference = _firestore
+          .collection('Users')
+          .doc('SMVDU$personID')
+          .collection('carttem');
+
+      QuerySnapshot querySnapshot = await collectionReference.get();
+
+      WriteBatch batch = FirebaseFirestore.instance.batch();
+
+      querySnapshot.docs.forEach((document) {
+        batch.delete(document.reference);
+      });
+    } catch (e) {
+      log("Exception thrown while updating User's Cart (Error from Billing Repository)");
+      rethrow;
+    }
+  }
+
+  Future<void> updateDailyAnalytics({required String storeID}) async {
+    try {
+      String formattedDate = _formattedDate.getCurrentDate();
+      DocumentReference documentReference = _firestore
+          .collection('groceryStores')
+          .doc(storeID)
+          .collection('dailyStats')
+          .doc(formattedDate);
+      DocumentSnapshot documentSnapshot = await documentReference.get();
+
+      if (!documentSnapshot.exists) {
+        documentReference.set({
+          'TotalItemsAccepted': 0,
+          'TotalItemsRequested': 1,
+          'TotalSale': 0
+        });
+      } else {
+        documentReference.update({
+          'TotalItemsRequested': FieldValue.increment(1),
+        });
+      }
+      log("Daily Analytics Updated!");
+    } catch (e) {
+      log("Exception thrown while updating Daily Analytics (Error from Billing Repository)");
+      rethrow;
+    }
+  }
+
+
+  Future<void> updateMonthlyAnalytics({required String storeID}) async {
+    try {
+      String formattedMonth = _formattedDate.getMonth();
+      DocumentReference documentReference = _firestore
+          .collection('groceryStores')
+          .doc(storeID)
+          .collection('monthlyStats')
+          .doc(formattedMonth);
+      DocumentSnapshot documentSnapshot = await documentReference.get();
+
+      if (!documentSnapshot.exists) {
+        documentReference.set({
+          'ProductsSold' : [],
+          'TotalItemsAccepted': 0,
+          'TotalItemsRequested': 1,
+          'TotalSales': 0
+        });
+      } else {
+        documentReference.update({
+          'TotalItemsRequested': FieldValue.increment(1),
+        });
+      }
+      log("Monthly Analytics Updated!");
+    } catch (e) {
+      log("Exception thrown while updating Monthly Analytics (Error from Billing Repository)");
       rethrow;
     }
   }
@@ -126,7 +198,7 @@ class BillingRepository {
     List<String> parts = previousOrderID.split('ORD');
     if (parts.length != 2) {
       // Handle invalid input
-      print("Error with the previous Transaction ID");
+      print("Error with the previous Order ID");
     }
 
     String prefix = parts[0]; // e.g., "SMVDU101"

@@ -65,7 +65,7 @@ ThemeData darkTheme = ThemeData(
     background: Color(0XFF2A2C38),
     primary: Color(0XFF222222),
     secondary: Color(0XFF4023D7),
-    tertiary: Color(0XFF6B50F6),
+    tertiary: Colors.white,
     brightness: Brightness.dark,
   ),
   textTheme: TextTheme(

@@ -1,23 +1,23 @@
+import 'dart:developer';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_cafe/cubits/home_cubit/homescreen_state.dart';
 import 'package:food_cafe/data/models/HomeScreen_FoodCard.dart';
-import 'package:food_cafe/data/repository/home_repository/fetchmenu_repository.dart';
+import 'package:food_cafe/data/repository/home_screen_repository.dart';
 
+class HomeScreenCubit extends Cubit<HomeScreenStates> {
+  HomeScreenCubit() : super(HomeCardLoadingState());
 
-class HomeCardCubit extends Cubit<HomeCardState>{
-  HomeCardCubit() : super(HomeCardLoadingState()){
-    fetchHomeCard();
-  }
+  HomeScreenRepository fetchFirebaseRepo = HomeScreenRepository();
 
-  FetchFirebaseRepo fetchFirebaseRepo = FetchFirebaseRepo();
-
-  void fetchHomeCard() async{
-    try{
-      List<Home_FoodCard> cards = await fetchFirebaseRepo.fetchHomePosts();
+  Future<void> initiateFetch({required String storeID}) async {
+    try {
+      List<MenuItemModel> cards =
+          await fetchFirebaseRepo.fetchMenuItems(storeID: storeID);
       emit(HomeCardLoadedState(cards));
-    } catch(exception){
+    } catch (exception) {
+      log("Exception thrown while fetching Menu Items (Error from Home Screen Cubit)");
       emit(HomeCardErrorState(exception.toString()));
     }
   }
 }
-

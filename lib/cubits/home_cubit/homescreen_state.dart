@@ -1,17 +1,15 @@
-
-
 import 'package:food_cafe/data/models/HomeScreen_FoodCard.dart';
 
-abstract class HomeCardState{}
+abstract class HomeScreenStates {}
 
-class HomeCardLoadingState extends HomeCardState{}
+class HomeCardLoadingState extends HomeScreenStates {}
 
-class HomeCardLoadedState extends HomeCardState{
-  final List<Home_FoodCard> cards;
+class HomeCardLoadedState extends HomeScreenStates {
+  final List<MenuItemModel> cards;
   HomeCardLoadedState(this.cards);
 }
 
-class HomeCardErrorState extends HomeCardState{
+class HomeCardErrorState extends HomeScreenStates {
   final String error;
   HomeCardErrorState(this.error);
 }

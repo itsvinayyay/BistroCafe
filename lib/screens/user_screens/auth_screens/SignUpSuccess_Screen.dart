@@ -23,10 +23,13 @@ class _SignUpSuccessState extends State<SignUpSuccess> {
     // TODO: implement initState
     super.initState();
     final state = context.read<LoginCubit>().state;
-    if(state is LoginLoggedInState){
-      isUser = state.isUser;
+    if (state is LoginLoggedInState) {
+      isUser = true;
+    } else if (state is CafeLoginLoadedState) {
+      isUser = false;
     }
   }
+
   @override
   Widget build(BuildContext context) {
     final themeMode = context.watch<ThemeCubit>().state;
@@ -75,7 +78,7 @@ class _SignUpSuccessState extends State<SignUpSuccess> {
                         : Navigator.pushNamedAndRemoveUntil(
                             context, Routes.store_HomeScreen, (route) => false);
                   },
-                  title: "Try Order"),
+                  title: "Proceed"),
             ],
           ),
         ),

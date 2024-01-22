@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -7,11 +8,13 @@ import 'package:food_cafe/cubits/login_cubit/login_cubit.dart';
 import 'package:food_cafe/cubits/login_cubit/login_state.dart';
 import 'package:food_cafe/cubits/store_home_cubit/store_home_cubit.dart';
 import 'package:food_cafe/cubits/store_home_cubit/store_home_states.dart';
+import 'package:food_cafe/cubits/store_menuitem_cubit/menuItem_cubit.dart';
 import 'package:food_cafe/cubits/theme_cubit/theme_cubit.dart';
 import 'package:food_cafe/data/services/notification_services.dart';
 import 'package:food_cafe/data/services/notifications.dart';
 import 'package:food_cafe/core/routes/named_routes.dart';
 import 'package:food_cafe/screens/store_screens/orders_screen/store_pastOrders_screen.dart';
+import 'package:food_cafe/screens/store_screens/store_MenuItems.dart';
 import 'package:food_cafe/screens/user_screens/home_screen/Home_Screen.dart';
 import 'package:food_cafe/theme.dart';
 import 'package:food_cafe/widgets/custom_FoodCard.dart';
@@ -96,33 +99,6 @@ class _store_HomeScreenState extends State<store_HomeScreen> {
                       SizedBox(
                         height: 5,
                       ),
-                      // FutureBuilder<String>(
-                      //   future: context.read<LoginCubit>().getStoreID(ID),
-                      //   builder: (context, snapshot) {
-                      //     if (snapshot.connectionState ==
-                      //         ConnectionState.waiting) {
-                      //       // Display a loading indicator while fetching storeID
-                      //       return Text(
-                      //         'Loading...',
-                      //         style: theme.textTheme.bodySmall,
-                      //       );
-                      //     } else if (snapshot.hasError) {
-                      //       // Handle error if any
-                      //       return Text(
-                      //         "Error: ${snapshot.error}",
-                      //         style: theme.textTheme.bodySmall,
-                      //       );
-                      //     } else {
-                      //       // Display your content once storeID is fetched
-                      //       return Text(storeID,
-                      //           style: TextStyle(
-                      //               fontWeight: FontWeight.w700,
-                      //               fontSize: 20.sp,
-                      //               color: theme.colorScheme.primary,
-                      //               fontFamily: 'BentonSans_Bold'));
-                      //     }
-                      //   },
-                      // ),
                       Text(
                         storeID,
                         style: TextStyle(
@@ -144,6 +120,14 @@ class _store_HomeScreenState extends State<store_HomeScreen> {
                   children: [
                     _buildSDTiles(
                         theme: theme,
+                        title: 'Profile',
+                        icon: Icons.person,
+                        onTap: () {
+                          Navigator.pushNamed(
+                              context, Routes.store_profileScreen);
+                        }),
+                    _buildSDTiles(
+                        theme: theme,
                         title: 'Notifications',
                         icon: Icons.notifications,
                         onTap: () {}),
@@ -151,13 +135,23 @@ class _store_HomeScreenState extends State<store_HomeScreen> {
                         theme: theme,
                         title: 'Settings',
                         icon: Icons.settings,
-                        onTap: () {}),
+                        onTap: () {
+                          Navigator.pushNamed(context, Routes.settingsScreen);
+                        }),
                     _buildSDTiles(
                         theme: theme,
                         title: 'Menu Items',
                         icon: Icons.menu_book,
                         onTap: () {
-                          Navigator.pushNamed(context, Routes.store_menuItems);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => BlocProvider(
+                                create: (context) => MenuItemCubit(),
+                                child: store_MenuItems(),
+                              ),
+                            ),
+                          );
                         }),
                     _buildSDTiles(
                         theme: theme,
@@ -219,8 +213,9 @@ class _store_HomeScreenState extends State<store_HomeScreen> {
                         style: theme.textTheme.headlineLarge,
                       ),
                     ),
-                    GestureDetector(
-                      onTap: () {
+                    CupertinoButton(
+                      padding: EdgeInsets.zero,
+                      onPressed: () {
                         _scaffoldKey.currentState!.openEndDrawer();
                       },
                       child: Container(
@@ -241,27 +236,111 @@ class _store_HomeScreenState extends State<store_HomeScreen> {
                 SizedBox(
                   height: 20,
                 ),
-                subHeading(theme: theme, heading: "Popular Picks available"),
+                // subHeading(theme: theme, heading: "Popular Picks available"),
+                // SizedBox(
+                //   height: 10,
+                // ),
+                // SingleChildScrollView(
+                //   scrollDirection: Axis.horizontal,
+                //   physics: BouncingScrollPhysics(),
+                //   child: Row(
+                //     children: List.generate(
+                //       popularPicks.length,
+                //       (index) => Padding(
+                //         padding: EdgeInsets.only(right: 20),
+                //         child: foodCard(
+                //           theme: theme,
+                //           image_url: popularPicks[index]["image_url"],
+                //           foodName: popularPicks[index]["foodName"],
+                //           mrp: popularPicks[index]["mrp"],
+                //         ),
+                //       ),
+                //     ),
+                //   ),
+                // ),
                 SizedBox(
-                  height: 10,
+                  height: 20,
                 ),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  physics: BouncingScrollPhysics(),
-                  child: Row(
-                    children: List.generate(
-                      popularPicks.length,
-                      (index) => Padding(
-                        padding: EdgeInsets.only(right: 20),
-                        child: foodCard(
-                          theme: theme,
-                          image_url: popularPicks[index]["image_url"],
-                          foodName: popularPicks[index]["foodName"],
-                          mrp: popularPicks[index]["mrp"],
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    CupertinoButton(
+                      padding: EdgeInsets.zero,
+                      onPressed: () {
+                        Navigator.pushNamed(context, Routes.analyticsScreen);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(width: 3, color: Colors.white),
+                        ),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.8),
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                padding: EdgeInsets.all(2),
+                                child: Icon(
+                                  Icons.trending_up_rounded,
+                                  color: theme.colorScheme.secondary,
+                                  size: 32.sp,
+                                )),
+                            SizedBox(
+                              width: 15,
+                            ),
+                            Text(
+                              'Analytics',
+                              style: theme.textTheme.labelLarge,
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                  ),
+                    CupertinoButton(
+                      padding: EdgeInsets.zero,
+                      onPressed: () {
+                        Navigator.pushNamed(context, Routes.store_OrdersScreen);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                              width: 3, color: theme.colorScheme.secondary),
+                        ),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                        child: Row(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                color: theme.colorScheme.secondary,
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              padding: EdgeInsets.all(2),
+                              child: Icon(
+                                Icons.receipt_long,
+                                color: Colors.white,
+                                size: 32.sp,
+                              ),
+                            ),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Text(
+                              'Orders',
+                              style: theme.textTheme.labelLarge,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 SizedBox(
                   height: 20,

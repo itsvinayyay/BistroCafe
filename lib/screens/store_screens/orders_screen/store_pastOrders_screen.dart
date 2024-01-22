@@ -1,14 +1,18 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:food_cafe/cubits/login_cubit/login_cubit.dart';
+import 'package:food_cafe/cubits/login_cubit/login_state.dart';
 import 'package:food_cafe/cubits/store_orders_cubit/pastOrders_cubit/pastOrders_cubit.dart';
 import 'package:food_cafe/cubits/store_orders_cubit/pastOrders_cubit/pastOrders_state.dart';
 import 'package:food_cafe/cubits/theme_cubit/theme_cubit.dart';
 import 'package:food_cafe/data/models/All_Orders_Models.dart';
+import 'package:food_cafe/screens/store_screens/store_OrdersScreen.dart';
 import 'package:food_cafe/theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:food_cafe/utils/payment_status.dart';
 import 'package:intl/intl.dart';
-
-
 
 class PastOrdersScreen extends StatefulWidget {
   const PastOrdersScreen({Key? key}) : super(key: key);
@@ -19,12 +23,21 @@ class PastOrdersScreen extends StatefulWidget {
 
 class _PastOrdersScreenState extends State<PastOrdersScreen> {
   late PastOrdersCubit pastOrdersCubit = PastOrdersCubit();
+  late String storeID;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    final state = context.read<LoginCubit>().state;
+    if (state is CafeLoginLoadedState) {
+      storeID = state.storeID;
+    } else {
+      log("Some State Error Occured in Past Orders Screen");
+
+      storeID = "error";
+    }
     pastOrdersCubit = BlocProvider.of<PastOrdersCubit>(context);
-    pastOrdersCubit.initialize('SMVDU101');
+    pastOrdersCubit.initialize(storeID);
   }
 
   @override
@@ -33,6 +46,7 @@ class _PastOrdersScreenState extends State<PastOrdersScreen> {
     super.dispose();
     pastOrdersCubit.close();
   }
+
   @override
   Widget build(BuildContext context) {
     final themeMode = context.watch<ThemeCubit>().state;
@@ -61,7 +75,7 @@ class _PastOrdersScreenState extends State<PastOrdersScreen> {
                     builder: (context, state) {
                   if (state is PastLoadingState) {
                     return Center(
-                      child: CircularProgressIndicator(color: Colors.black),
+                      child: CircularProgressIndicator(color: Colors.white),
                     );
                   } else if (state is PastErrorState) {
                     return Center(
@@ -156,6 +170,9 @@ GestureDetector pastOrder_Card({
                         style: theme.textTheme.titleSmall,
                         // textAlign: TextAlign.right,
                       ),
+                    SizedBox(
+                      height: 2,
+                    ),
                     Text(
                       "$date | $time",
                       style: theme.textTheme.bodySmall,
@@ -200,8 +217,22 @@ GestureDetector pastOrder_Card({
                 ),
               ],
             ),
-            SizedBox(
-              height: 10,
+            Divider(
+              thickness: 1,
+              color: Colors.grey.shade600,
+            ),
+            Column(children: [
+              ...List.generate(
+                pastOrders_Model.orderItems!.length,
+                (index) => foodRow(
+                  theme: theme,
+                  foodItem: pastOrders_Model.orderItems![index],
+                ),
+              ),
+            ]),
+            Divider(
+              thickness: 1,
+              color: Colors.grey.shade600,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -229,6 +260,27 @@ GestureDetector pastOrder_Card({
                     ),
                     // textAlign: TextAlign.right,
                   ),
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                Text(
+                  "Order Status: ",
+                  style: theme.textTheme.labelMedium,
+                  // textAlign: TextAlign.right,
+                ),
+                Text(
+                  pastOrders_Model.orderStatus == OrderStatus.prepared
+                      ? "Completed"
+                      : "Rejected",
+                  style: theme.textTheme.bodyLarge!.copyWith(
+                      color:
+                          pastOrders_Model.orderStatus == OrderStatus.prepared
+                              ? Colors.blueAccent
+                              : Colors.red,
+                      fontWeight: FontWeight.w900),
+                  // textAlign: TextAlign.right,
                 ),
               ],
             ),

@@ -5,16 +5,17 @@ import 'package:food_cafe/cubits/store_orders_cubit/currentOrders_cubit/currentO
 import 'package:food_cafe/cubits/store_orders_cubit/pastOrders_cubit/pastOrders_cubit.dart';
 
 import 'package:food_cafe/cubits/store_orders_cubit/requestedOrders_cubit/requestedOrders_cubit.dart';
+import 'package:food_cafe/cubits/store_orders_cubit/unpaid_orders_cubit.dart/unpaid_orders_cubit.dart';
 
 import 'package:food_cafe/cubits/theme_cubit/theme_cubit.dart';
 
 import 'package:food_cafe/screens/store_screens/orders_screen/store_currentOrders_screen.dart';
 import 'package:food_cafe/screens/store_screens/orders_screen/store_pastOrders_screen.dart';
 import 'package:food_cafe/screens/store_screens/orders_screen/store_requestedOrders_screen.dart';
+import 'package:food_cafe/screens/store_screens/orders_screen/store_unpaid_orders_screen.dart';
 
 import 'package:food_cafe/theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
 
 class store_OrdersScreen extends StatefulWidget {
   store_OrdersScreen({Key? key}) : super(key: key);
@@ -34,6 +35,8 @@ class _store_OrdersScreenState extends State<store_OrdersScreen> {
         create: (context) => RequestedOrdersCubit(),
         child: RequestedOrdersScreen()),
     BlocProvider(
+        create: (context) => UnpaidOrdersCubit(), child: UnpaidOrdersScreen()),
+    BlocProvider(
       create: (context) => CurrentOrdersCubit(),
       child: CurrentOrdersScreen(),
     ),
@@ -47,14 +50,12 @@ class _store_OrdersScreenState extends State<store_OrdersScreen> {
     // TODO: implement initState
     super.initState();
     //TODO Initialize the stream again for Requested Orders!
-    
   }
 
   @override
   void dispose() {
     // TODO: implement dispose
     super.dispose();
-    
   }
 
   @override
@@ -87,7 +88,6 @@ class _store_OrdersScreenState extends State<store_OrdersScreen> {
       ),
       backgroundColor: theme.colorScheme.background,
       body: OrderScreens[currentBNIndex],
-      
     );
   }
 
@@ -122,7 +122,7 @@ class _store_OrdersScreenState extends State<store_OrdersScreen> {
     );
   }
 
-  List<String> Tabs = ["Requested", "Current", "Past"];
+  List<String> Tabs = ["Requested", "Unpaid", "Current", "Past"];
 }
 
 Row foodRow(

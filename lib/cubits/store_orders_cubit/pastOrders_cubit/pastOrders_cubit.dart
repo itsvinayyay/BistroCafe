@@ -9,23 +9,16 @@ class PastOrdersCubit extends Cubit<PastOrdersState> {
 
   PastOrdersRepository pastOrdersRepository = PastOrdersRepository();
 
-  void initialize(String storeID) {
+  Future<void> initialize(String storeID) async {
     emit(PastLoadingState(state.orders));
 
     try {
-      pastOrdersRepository.getPastOrders(storeID);
-      pastOrdersRepository.getOrdersStream.listen((List<Orders_Model> orders) {
-        emit(PastLoadedState(orders));
-      });
+      List<Orders_Model> orders =
+          await pastOrdersRepository.getPastOrders(storeID: storeID);
+      emit(PastLoadedState(orders));
     } catch (e) {
-      log("Started Listening for Requested Orders");
+      log("Exception thrown while fetching Past Orders (Error from Past Orders Repository)");
       emit(PastErrorState(state.orders, e.toString()));
     }
-  }
-
-  @override
-  Future<void> close() {
-    pastOrdersRepository.closeSubscription();
-    return super.close();
   }
 }

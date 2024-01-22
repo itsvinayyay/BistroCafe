@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
 
-class Home_FoodCard {
+class MenuItemModel {
   String? name;
   int? mrp;
   String? itemID;
   String? imageURL;
+  String? category;
 
-  Home_FoodCard({
+  MenuItemModel({
     this.name,
     this.mrp,
     this.itemID,
     this.imageURL,
+    this.category,
   });
-  Home_FoodCard.fromJson(Map<String, dynamic> json){
+  MenuItemModel.fromJson(Map<String, dynamic> json) {
     name = json["Name"];
     mrp = json["Price"];
     itemID = json["ItemID"];
     imageURL = json["ImageURL"];
+    category = json['Category'];
   }
 }

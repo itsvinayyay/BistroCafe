@@ -11,29 +11,21 @@ Column loginHeader({
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      SizedBox(
-        height: 20.h,
-      ),
       customBackButton(context, theme),
       SizedBox(
         height: 20.h,
       ),
-      SizedBox(
-        height: 66.h,
-        width: 264.w,
-        child: Text(
-          title,
-          style: theme.textTheme.titleMedium,
-        ),
+      Text(
+        title,
+        style: theme.textTheme.titleMedium,
       ),
-      SizedBox(
-        height: 19.h,
-      ),
+      SizedBox(height: 10,),
+      
       SizedBox(
         width: 239.w,
         child: Text(
           subheading,
-          style: theme.textTheme.bodySmall,
+          style: theme.textTheme.bodySmall!.copyWith(fontSize: 12),
         ),
       ),
     ],

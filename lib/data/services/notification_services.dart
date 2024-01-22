@@ -75,6 +75,7 @@ class NotificationServices {
             priority: Priority.high,
             ticker: 'ticker',
           icon: '@mipmap/ic_launcher',
+          styleInformation: BigTextStyleInformation(''),
         );
 
     NotificationDetails notificationDetails =

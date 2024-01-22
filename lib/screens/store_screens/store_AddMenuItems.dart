@@ -1,9 +1,11 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:food_cafe/cubits/login_cubit/login_cubit.dart';
+import 'package:food_cafe/cubits/login_cubit/login_state.dart';
 import 'package:food_cafe/cubits/store_additem_cubit/addImage_state.dart';
 import 'package:food_cafe/cubits/store_additem_cubit/additem_cubit.dart';
 import 'package:food_cafe/cubits/store_additem_cubit/additem_state.dart';
@@ -28,9 +30,9 @@ class _store_AddItemsScreenState extends State<store_AddItemsScreen> {
   final TextEditingController _mrpController = TextEditingController();
   File? imageFile;
   bool isAvailable = false;
-  String selectedCategory = 'Appetizers';
+  String selectedCategory = 'Appetizer';
   late String storeID;
-  late String ID;
+  late String personID;
 
   @override
   void initState() {
@@ -39,11 +41,16 @@ class _store_AddItemsScreenState extends State<store_AddItemsScreen> {
     initializeAddMenuItems();
   }
 
-
-  Future<void> initializeAddMenuItems() async{
-    ID = context.read<LoginCubit>().getEntryNo();
-    storeID = await context.read<LoginCubit>().getStoreID(ID);
-
+  Future<void> initializeAddMenuItems() async {
+    final state = context.read<LoginCubit>().state;
+    if (state is CafeLoginLoadedState) {
+      personID = state.personID;
+      storeID = state.storeID;
+    } else {
+      log("Some State Error Occured in Add Menu Item Screen");
+      personID = "error";
+      storeID = "error";
+    }
   }
 
   @override
@@ -69,33 +76,22 @@ class _store_AddItemsScreenState extends State<store_AddItemsScreen> {
                   width: 233.w,
                   child: Text(
                     "Add your Menu Items!",
-                    style: theme.textTheme.headlineLarge,
+                    style:
+                        theme.textTheme.headlineLarge!.copyWith(height: 1.25),
                   ),
                 ),
                 Row(
                   children: [
                     Text(
-                      "Menu Items will be added to store ",
+                      "Menu Items will be added to store $storeID",
                       style: theme.textTheme.bodySmall,
-                    ),
-                    FutureBuilder<String>(
-                      future: context.read<LoginCubit>().getStoreID(ID),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          // Display a loading indicator while fetching storeID
-                          return Text('Loading...', style: theme.textTheme.bodySmall,);
-                        } else if (snapshot.hasError) {
-                          // Handle error if any
-                          return Text("Error: ${snapshot.error}", style: theme.textTheme.bodySmall,);
-                        } else {
-                          // Display your content once storeID is fetched
-                          return Text('${snapshot.data.toString()}.', style: theme.textTheme.bodySmall,);
-                        }
-                      },
                     ),
                   ],
                 ),
-                Text("The Item ID will be generated automatically relative to the previous Item ID.", style: theme.textTheme.bodySmall,),
+                Text(
+                  "The Item ID will be generated automatically relative to the previous Item ID.",
+                  style: theme.textTheme.bodySmall,
+                ),
                 SizedBox(
                   height: 10,
                 ),
@@ -176,7 +172,8 @@ class _store_AddItemsScreenState extends State<store_AddItemsScreen> {
                                 height: 10,
                               ),
                               BlocProvider(
-                                  create: (context) => CategoryCubit(),
+                                  create: (context) =>
+                                      CategoryCubit(category: selectedCategory),
                                   child: BlocBuilder<CategoryCubit, String>(
                                     builder: (context, state) {
                                       return Container(
@@ -229,7 +226,8 @@ class _store_AddItemsScreenState extends State<store_AddItemsScreen> {
                         height: 10,
                       ),
                       BlocProvider(
-                        create: (context) => AvailableCubit(),
+                        create: (context) =>
+                            AvailableCubit(availability: isAvailable),
                         child: BlocBuilder<AvailableCubit, bool>(
                             builder: (context, state) {
                           return GestureDetector(
@@ -239,8 +237,6 @@ class _store_AddItemsScreenState extends State<store_AddItemsScreen> {
                                   .read<AvailableCubit>()
                                   .toggleAvailibility(newvalue);
                               isAvailable = newvalue;
-
-                              print("value of isAvailable $isAvailable");
                             },
                             child: Container(
                               width: 150.w,
@@ -378,12 +374,13 @@ class _store_AddItemsScreenState extends State<store_AddItemsScreen> {
                           onPressed: () => context
                               .read<AddItemCubit>()
                               .uploadItemtoFireStore(
-                            storeID: storeID,
-                            name: itemName,
-                            category: selectedCategory,
-                            mrp: int.parse(price),
-                            isavailable: isAvailable,
-                            imageFile: imageFile!,),
+                                storeID: storeID,
+                                name: itemName,
+                                category: selectedCategory,
+                                mrp: int.parse(price),
+                                isavailable: isAvailable,
+                                imageFile: imageFile!,
+                              ),
                           title: "Add Item"));
                 }, listener: (context, state) {
                   if (state is AddItemImageUpload_ErrorState) {
@@ -393,7 +390,8 @@ class _store_AddItemsScreenState extends State<store_AddItemsScreen> {
                     ScaffoldMessenger.of(context)
                         .showSnackBar(SnackBar(content: Text(state.error)));
                   } else if (state is AddItemUploadedState) {
-                    Navigator.pushNamedAndRemoveUntil(context, Routes.store_ItemAdded, (route) => false);
+                    Navigator.pushNamedAndRemoveUntil(
+                        context, Routes.store_ItemAdded, (route) => false);
                   }
                 }),
               ],
@@ -409,5 +407,7 @@ List<String> categories = [
   'Appetizer',
   'Main Courses',
   'Desserts',
-  'Beverages'
+  'Beverages',
+  'Sides',
+  'Specials'
 ];

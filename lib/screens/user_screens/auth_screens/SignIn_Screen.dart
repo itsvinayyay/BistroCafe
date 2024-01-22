@@ -21,6 +21,14 @@ class _SignInState extends State<SignIn> {
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   final _formkey = GlobalKey<FormState>();
+  late LoginCubit loginCubit;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    loginCubit = BlocProvider.of<LoginCubit>(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -167,7 +175,7 @@ class _SignInState extends State<SignIn> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      Navigator.pushNamed(context, Routes.forgotPassword);
+                      Navigator.pushNamed(context, Routes.forgotPasswordScreen);
                     },
                     child: Text(
                       "Forgot your Password?",
@@ -196,9 +204,10 @@ class _SignInState extends State<SignIn> {
                         theme: theme,
                         onPressed: () {
                           if (_formkey.currentState!.validate()) {
-                            BlocProvider.of<LoginCubit>(context)
-                                .signinwith_Email(_emailController.text,
-                                    _passwordController.text);
+                            loginCubit.signinwith_Email(
+                              email: _emailController.text.trim(),
+                              password: _passwordController.text.trim(),
+                            );
                           }
                         },
                         title: "Verify");
@@ -212,6 +221,8 @@ class _SignInState extends State<SignIn> {
                           content: Text(state.error),
                         ),
                       );
+                    } else if (state is LoginRequiredVerificationState) {
+                      Navigator.pushNamed(context, Routes.signupVerification);
                     }
                   })
                 ],

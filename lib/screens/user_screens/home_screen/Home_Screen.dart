@@ -1,18 +1,22 @@
 import 'dart:async';
 import 'dart:developer';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:food_cafe/cubits/cart_cubit/cartLocalState_cubit.dart';
 import 'package:food_cafe/cubits/home_cubit/homescreen_cubit.dart';
 import 'package:food_cafe/cubits/home_cubit/homescreen_state.dart';
 import 'package:food_cafe/cubits/login_cubit/login_cubit.dart';
+import 'package:food_cafe/cubits/login_cubit/login_state.dart';
 import 'package:food_cafe/cubits/theme_cubit/theme_cubit.dart';
 import 'package:food_cafe/data/models/CartScreen_FoodCard.dart';
 import 'package:food_cafe/data/services/notification_services.dart';
 
 import 'package:food_cafe/core/routes/named_routes.dart';
+import 'package:food_cafe/screens/store_screens/store_AddMenuItems.dart';
 import 'package:food_cafe/theme.dart';
 import 'package:food_cafe/widgets/custom_FoodCard.dart';
 
@@ -24,14 +28,16 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  late HomeScreenCubit homeScreenCubit;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   NotificationServices notificationServices = NotificationServices();
-  late String entryNo;
+  late String personID;
   int _currentpage = 0;
   final PageController _pageController = PageController(initialPage: 0);
   late Timer _timer;
   int pagenumber = 0;
   static bool _initialized = false;
+  late LoginCubit loginCubit;
 
   @override
   void initState() {
@@ -44,9 +50,19 @@ class _HomeScreenState extends State<HomeScreen> {
       log("This is the Device Token!!!");
       print(value);
     });
-    entryNo = context.read<LoginCubit>().getEntryNo();
+    loginCubit = BlocProvider.of<LoginCubit>(context);
+    homeScreenCubit = BlocProvider.of<HomeScreenCubit>(context);
+    homeScreenCubit.initiateFetch(storeID: 'SMVDU101');
+    final state = loginCubit.state;
+    if (state is LoginLoggedInState) {
+      personID = state.personID;
+      log("Got the Person ID $personID");
+    } else {
+      log("Some State Error Occured in Home Screen");
+      personID = "error";
+    }
     if (!_initialized) {
-      context.read<CartLocalState>().initializefromFirebase(entryNo);
+      context.read<CartLocalState>().initializefromFirebase(personID);
       _initialized = true;
     }
     _timer = Timer.periodic(Duration(seconds: 5), (timer) {
@@ -68,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    log(entryNo);
+    log(personID);
     final themeMode = context.watch<ThemeCubit>().state;
     final ThemeData theme = themeMode == MyTheme.dark ? darkTheme : lightTheme;
     return Scaffold(
@@ -109,7 +125,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         height: 10.h,
                       ),
                       Text(
-                        entryNo,
+                        personID,
                         style: TextStyle(
                             fontWeight: FontWeight.w700,
                             fontSize: 20.sp,
@@ -125,65 +141,52 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: ListView(
                   padding: EdgeInsets.zero,
                   children: [
-                    ListTile(
-                      horizontalTitleGap: 0,
-                      leading: Icon(
-                        Icons.notifications,
-                        color: theme.colorScheme.secondary,
-                      ),
-                      title: Text(
-                        'Notifications',
-                        style: theme.textTheme.bodyLarge,
-                      ),
-                      onTap: () {
-                        Navigator.pushNamed(
-                            context, Routes.notificationsScreen);
-                      },
-                    ),
-                    ListTile(
-                      horizontalTitleGap: 0,
-                      leading: Icon(
-                        Icons.settings,
-                        color: theme.colorScheme.secondary,
-                      ),
-                      title: Text(
-                        'Settings',
-                        style: theme.textTheme.bodyLarge,
-                      ),
-                      onTap: () {
-                        // Add your logic for when this item is tapped.
-                      },
-                    ),
-                    ListTile(
-                      horizontalTitleGap: 0,
-                      leading: Icon(
-                        Icons.info_outline_rounded,
-                        color: theme.colorScheme.secondary,
-                      ),
-                      title: Text(
-                        'About',
-                        style: theme.textTheme.bodyLarge,
-                      ),
-                      onTap: () {
-                        // Add your logic for when this item is tapped.
-                      },
-                    ),
-                    ListTile(
-                      horizontalTitleGap: 0,
-                      leading: Icon(
-                        Icons.logout,
-                        color: theme.colorScheme.secondary,
-                      ),
-                      title: Text(
-                        'Log Out',
-                        style: theme.textTheme.bodyLarge,
-                      ),
-                      onTap: () {
-                        context.read<LoginCubit>().signOut();
-                        Navigator.pushNamedAndRemoveUntil(
-                            context, Routes.signIn, (route) => false);
-                      },
-                    ),
+                    _buildSDTiles(
+                        theme: theme,
+                        context: context,
+                        title: "Notifications",
+                        iconData: Icons.notifications,
+                        onTap: () {
+                          Navigator.pushNamed(
+                              context, Routes.notificationsScreen);
+                        }),
+                    _buildSDTiles(
+                        theme: theme,
+                        context: context,
+                        title: "Order History",
+                        iconData: Icons.history_rounded,
+                        onTap: () {
+                          Navigator.pushNamed(
+                              context, Routes.orderHistoryScreen);
+                        }),
+                    _buildSDTiles(
+                        theme: theme,
+                        context: context,
+                        title: "Profile",
+                        iconData: Icons.person,
+                        onTap: () {}),
+                    _buildSDTiles(
+                        theme: theme,
+                        context: context,
+                        title: "Settings",
+                        iconData: Icons.settings,
+                        onTap: () {}),
+                    _buildSDTiles(
+                        theme: theme,
+                        context: context,
+                        title: "About",
+                        iconData: Icons.info_outline_rounded,
+                        onTap: () {}),
+                    _buildSDTiles(
+                        theme: theme,
+                        context: context,
+                        title: "Log Out",
+                        iconData: Icons.logout,
+                        onTap: () async {
+                          await loginCubit.signOut();
+                          Navigator.pushNamedAndRemoveUntil(
+                              context, Routes.signIn, (route) => false);
+                        }),
                   ],
                 ),
               ),
@@ -195,169 +198,259 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           physics: BouncingScrollPhysics(),
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 14.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: 60,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 15),
+                child: Column(
                   children: [
                     SizedBox(
-                      height: 82.h,
-                      width: 233.w,
-                      child: Text(
-                        "Find Your Favorite Food",
-                        style: theme.textTheme.headlineLarge,
+                      height: 30,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SizedBox(
+                          height: 82.h,
+                          width: 233.w,
+                          child: Text(
+                            "Find Your Favorite Food",
+                            style: theme.textTheme.headlineLarge,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            _scaffoldKey.currentState!.openEndDrawer();
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 13, vertical: 14),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.primary,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Icon(
+                              Icons.dashboard,
+                              color: theme.colorScheme.secondary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    SizedBox(
+                      height: 160.h,
+                      child: PageView(
+                        physics: BouncingScrollPhysics(),
+                        controller: _pageController,
+                        children: List.generate(
+                          banners.length,
+                          (index) => homescreenBanner(
+                            context: context,
+                            theme: theme,
+                            imageURL: banners[index]["image_url"],
+                            title: banners[index]["title"],
+                            details: banners[index]["details"],
+                          ),
+                        ),
                       ),
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        _scaffoldKey.currentState!.openEndDrawer();
-                      },
-                      child: Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 13, vertical: 14),
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.primary,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Icon(
-                          Icons.dashboard,
-                          color: theme.colorScheme.secondary,
-                        ),
-                      ),
+                    SizedBox(
+                      height: 20,
                     ),
                   ],
                 ),
-                SizedBox(
-                  height: 20,
-                ),
-                SizedBox(
-                  height: 160.h,
-                  child: PageView(
-                    physics: BouncingScrollPhysics(),
-                    controller: _pageController,
-                    children: List.generate(
-                      banners.length,
-                      (index) => homescreenBanner(
-                        context: context,
-                        theme: theme,
-                        imageURL: banners[index]["image_url"],
-                        title: banners[index]["title"],
-                        details: banners[index]["details"],
+              ),
+              Container(
+                padding: EdgeInsets.only(left: 15.w, top: 10, bottom: 10),
+                color: theme.colorScheme.secondary,
+                width: MediaQuery.of(context).size.width,
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Categories",
+                        style: theme.textTheme.titleMedium,
                       ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Text(
-                  "Popular Picks",
-                  style: theme.textTheme.titleSmall,
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  physics: BouncingScrollPhysics(),
-                  child: Row(
-                    children: List.generate(
-                      popularPicks.length,
-                      (index) => Padding(
-                        padding: EdgeInsets.only(right: 20),
-                        child: foodCard(
-                          theme: theme,
-                          image_url: popularPicks[index]["image_url"],
-                          foodName: popularPicks[index]["foodName"],
-                          mrp: popularPicks[index]["mrp"],
+                      SizedBox(
+                        height: 5,
+                      ),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        physics: BouncingScrollPhysics(),
+                        child: Row(
+                          children: List.generate(
+                            categories.length,
+                            (index) => Padding(
+                              padding: EdgeInsets.only(right: 20),
+                              child: _buildCategoryCard(
+                                  theme: theme,
+                                  iconName: _categoryIconNames[index],
+                                  categoryName: categories[index],
+                                  onPressed: () {}),
+                            ),
+                          ),
                         ),
                       ),
+                    ]),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 15.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Menu Items",
+                      style: theme.textTheme.titleMedium,
                     ),
-                  ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Text(
-                  "Menu Items",
-                  style: theme.textTheme.titleMedium,
-                ),
-                SizedBox(
-                  height: 15,
-                ),
-                BlocConsumer<HomeCardCubit, HomeCardState>(
-                    builder: (context, state) {
-                  if (state is HomeCardLoadingState) {
-                    return Center(
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                      ),
-                    );
-                  } else if (state is HomeCardLoadedState) {
-                    return LayoutBuilder(
-                      builder:
-                          (BuildContext context, BoxConstraints constraints) {
-                        return CustomScrollView(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          slivers: [
-                            SliverGrid(
-                              gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                crossAxisSpacing: 0.0,
-                                mainAxisSpacing: 0.0,
-                                childAspectRatio: 147.w / 202.h,
-                              ),
-                              delegate: SliverChildBuilderDelegate(
-                                (BuildContext context, int index) {
-                                  return foodCard(
-                                    theme: theme,
-                                    image_url: state.cards[index].imageURL!,
-                                    foodName: state.cards[index].name!,
-                                    mrp: state.cards[index].mrp!,
-                                    onTap: () {
-                                      Cart_FoodCard_Model card =
-                                          Cart_FoodCard_Model(
-                                        name: state.cards[index].name!,
-                                        mrp: state.cards[index].mrp!,
-                                        itemID: state.cards[index].itemID,
-                                        img_url: state.cards[index].imageURL,
-                                        quantity: 1,
-                                      );
-                                      context
-                                          .read<CartLocalState>()
-                                          .addItemstoCart(
-                                              entryNo, card, context);
-                                    },
-                                  );
-                                },
-                                childCount: state.cards.length,
-                              ),
-                            ),
-                          ],
+                    SizedBox(
+                      height: 5,
+                    ),
+                    BlocConsumer<HomeScreenCubit, HomeScreenStates>(
+                        builder: (context, state) {
+                      if (state is HomeCardLoadingState) {
+                        return Center(
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                          ),
                         );
-                      },
-                    );
-                  }
-                  return Center(
-                    child: Text("Error here!"),
-                  );
-                }, listener: (context, state) {
-                  print(state.toString());
-                })
-              ],
-            ),
+                      } else if (state is HomeCardLoadedState) {
+                        return LayoutBuilder(
+                          builder: (BuildContext context,
+                              BoxConstraints constraints) {
+                            return CustomScrollView(
+                              primary: true,
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              slivers: [
+                                SliverGrid(
+                                  gridDelegate:
+                                      SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    crossAxisSpacing: 0.0,
+                                    mainAxisSpacing: 0.0,
+                                    childAspectRatio: 147.w / 180.h,
+                                  ),
+                                  delegate: SliverChildBuilderDelegate(
+                                    (BuildContext context, int index) {
+                                      return foodCard(
+                                        theme: theme,
+                                        menuItem: state.cards[index],
+                                        onTap: () {
+                                          Cart_FoodCard_Model card =
+                                              Cart_FoodCard_Model(
+                                            name: state.cards[index].name!,
+                                            mrp: state.cards[index].mrp!,
+                                            itemID: state.cards[index].itemID,
+                                            img_url:
+                                                state.cards[index].imageURL,
+                                            quantity: 1,
+                                          );
+                                          context
+                                              .read<CartLocalState>()
+                                              .addItemstoCart(
+                                                  personID, card, context);
+                                        },
+                                      );
+                                    },
+                                    childCount: state.cards.length,
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      }
+                      return Center(
+                        child: Text("Error here!"),
+                      );
+                    }, listener: (context, state) {
+                      print(state.toString());
+                    }),
+                  ],
+                ),
+              )
+            ],
           ),
         ),
       ),
     );
+  }
+
+  CupertinoButton _buildCategoryCard(
+      {required ThemeData theme,
+      required String iconName,
+      required String categoryName,
+      required VoidCallback onPressed}) {
+    return CupertinoButton(
+      padding: EdgeInsets.only(right: 10),
+      pressedOpacity: 0.7,
+      onPressed: onPressed,
+      child: Container(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.primary,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        // height: 184.h,
+        width: 147,
+        height: 202,
+        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+              flex: 8,
+              child: SvgPicture.asset(
+                'assets/icons/$iconName.svg',
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: Text(
+                categoryName,
+                style:
+                    theme.textTheme.labelLarge!.copyWith(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  List<String> _categoryIconNames = [
+    'appetizer',
+    'maincourse',
+    'desserts',
+    'beverages',
+    'sides',
+    'specials',
+  ];
+
+  ListTile _buildSDTiles(
+      {required ThemeData theme,
+      required BuildContext context,
+      required String title,
+      required IconData iconData,
+      required VoidCallback onTap}) {
+    return ListTile(
+        horizontalTitleGap: 10,
+        leading: Icon(
+          iconData,
+          color: theme.colorScheme.secondary,
+        ),
+        title: Text(
+          title,
+          style: theme.textTheme.bodyLarge,
+        ),
+        onTap: onTap);
   }
 }
 

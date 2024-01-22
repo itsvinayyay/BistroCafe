@@ -37,8 +37,8 @@ class CurrentOrdersCubit extends Cubit<CurrentOrdersState> {
       currentOrdersRepository.currentOrderPrepared(orderID);
       _api.sendMessage(
           tokenID: tokenID,
-          title: 'Order Prepared',
-          description: 'Your Order has been prepared!');
+          title: 'Order Prepared! 🍽️',
+          description: 'Your order is prepared and ready for you. Thank you for choosing us for your culinary delights!');
     } catch (e) {
       log("Exception Occured while Accpeting current Order => $e (thrown at Requested Orders Cubit)");
     }

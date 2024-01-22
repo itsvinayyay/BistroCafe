@@ -33,10 +33,16 @@ class BillingCheckOutCubit extends Cubit<BillingCheckoutState> {
         tokenID: userTokenID,
       );
       String tokenID = await billingRepository.extractCafeOwnerTokenID(storeID);
+      await billingRepository.updateOrderHistory(
+          orderID: receivedOrderID, personID: personID);
+
+      // await billingRepository.updateCart(personID: personID);
+
       await _api.sendMessage(
           tokenID: tokenID,
           title: 'Order Request',
           description: 'An Order is Requested by the User');
+      await billingRepository.updateDailyAnalytics(storeID: storeID);
 
       emit(BillingCheckoutLoadedState());
     } catch (e) {

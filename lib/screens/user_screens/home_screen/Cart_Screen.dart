@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -5,11 +7,11 @@ import 'package:food_cafe/cubits/cart_cubit/cartDisplay_cubit.dart';
 import 'package:food_cafe/cubits/cart_cubit/cartDisplay_states.dart';
 import 'package:food_cafe/cubits/cart_cubit/cartLocalState_cubit.dart';
 import 'package:food_cafe/cubits/login_cubit/login_cubit.dart';
+import 'package:food_cafe/cubits/login_cubit/login_state.dart';
 import 'package:food_cafe/cubits/theme_cubit/theme_cubit.dart';
 import 'package:food_cafe/data/models/CartScreen_FoodCard.dart';
 import 'package:food_cafe/core/routes/named_routes.dart';
 import 'package:food_cafe/theme.dart';
-
 
 class CartScreen extends StatefulWidget {
   const CartScreen({Key? key}) : super(key: key);
@@ -19,7 +21,7 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  late String entryNo;
+  late String personID;
   late CartDisplayCubit cartDisplayCubit;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
@@ -28,13 +30,20 @@ class _CartScreenState extends State<CartScreen> {
 
   @override
   void initState() {
-    entryNo = context.read<LoginCubit>().getEntryNo();
     // context.read<CartDisplayCubit>().startListening(entryNo);
     // cartDisplayCubit.startListening(entryNo);
     // cartDisplayCubit = CartDisplayCubit();
     // cartDisplayCubit.initialize(entryNo);
+    final state = context.read<LoginCubit>().state;
+    if (state is LoginLoggedInState) {
+      personID = state.personID;
+    } else {
+      log("Some State Error Occured in Cart Screen");
+      personID = "error";
+    }
+
     cartDisplayCubit = BlocProvider.of<CartDisplayCubit>(context);
-  cartDisplayCubit.initialize(entryNo);
+    cartDisplayCubit.initialize(personID);
 
     // TODO: implement initState
     super.initState();
@@ -77,7 +86,7 @@ class _CartScreenState extends State<CartScreen> {
         child: TextButton(
           onPressed: () async {
             if (context.read<CartLocalState>().state.isNotEmpty) {
-              await context.read<CartLocalState>().syncLocalState(entryNo);
+              await context.read<CartLocalState>().syncLocalState(personID);
               Navigator.pushNamed(context, Routes.billingScreen);
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -115,8 +124,6 @@ class _CartScreenState extends State<CartScreen> {
                 SizedBox(
                   height: 20,
                 ),
-                
-
                 BlocBuilder<CartDisplayCubit, CartDisplay>(
                     builder: (context, state) {
                   if (state is CartItemLoadingState) {
@@ -140,15 +147,15 @@ class _CartScreenState extends State<CartScreen> {
                           item: cartItem,
                           decreaseQuantity: () {
                             cartLocalState.removeItemsfromLocal(
-                                entryNo, cartItem.itemID!);
+                                personID, cartItem.itemID!);
                           },
                           increaseQuantity: () {
                             cartLocalState.addItemsToLocal(
-                                cartItem.itemID!, entryNo);
+                                cartItem.itemID!, personID);
                           },
                           onDismissed: (direction) {
                             cartLocalState.deleteItemfromCart(
-                                entryNo, cartItem.itemID!);
+                                personID, cartItem.itemID!);
                           },
                           itemQuantity: quantity ?? 0,
                         );

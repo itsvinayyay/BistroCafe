@@ -257,6 +257,7 @@ Card currentOrders_Card({
             ],
           ),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Column(
@@ -280,7 +281,9 @@ Card currentOrders_Card({
                     child: Text(
                       currentOrders_Model.isCash == true ? "Cash" : "Online",
                       style: TextStyle(
-                        color: Colors.blue,
+                        color: currentOrders_Model.isCash == true
+                            ? Colors.blue
+                            : Colors.red,
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w700,
                         fontFamily: 'BentonSans_Bold',
@@ -288,6 +291,22 @@ Card currentOrders_Card({
                       // textAlign: TextAlign.right,
                     ),
                   ),
+                  if (currentOrders_Model.isCash == false)
+                    Row(
+                      children: [
+                        Text(
+                          "Payment Status: ",
+                          style: theme.textTheme.labelMedium,
+                          // textAlign: TextAlign.right,
+                        ),
+                        Text(
+                          'Success',
+                          style: theme.textTheme.bodyLarge!.copyWith(
+                              color: Colors.green, fontWeight: FontWeight.w900),
+                          // textAlign: TextAlign.right,
+                        ),
+                      ],
+                    ),
                 ],
               ),
               TextButton(

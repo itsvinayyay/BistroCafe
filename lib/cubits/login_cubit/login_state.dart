@@ -8,20 +8,27 @@ class LoginLoadingState extends LoginState {}
 
 class LoginLoggedInState extends LoginState {
   final User firebaseUser;
-  final bool isUser;
-  LoginLoggedInState({required this.firebaseUser, required this.isUser});
+  final String personID;
+  
+  LoginLoggedInState(
+      {required this.firebaseUser,
+      required this.personID,
+      });
 }
 
-class LoginrequiredVerificationState extends LoginState {
+class LoginRequiredVerificationState extends LoginState {
   final User firebaseUser;
-  final bool isUser;
-  LoginrequiredVerificationState(
-      {required this.firebaseUser, required this.isUser});
+  final String personID;
+ 
+  LoginRequiredVerificationState(
+      {required this.firebaseUser,
+      required this.personID,
+      });
 }
 
-class LoginuserNotVerifiedState extends LoginState {
+class LoginUserNotVerifiedState extends LoginState {
   final User firebaseUser;
-  LoginuserNotVerifiedState({required this.firebaseUser});
+  LoginUserNotVerifiedState({required this.firebaseUser});
 }
 
 class LoginLoggedOutState extends LoginState {}
@@ -34,17 +41,17 @@ class LoginErrorState extends LoginState {
 class CafeLoginLoadingState extends LoginState {}
 
 class CafeLoginLoadedState extends LoginState {
-  final User firebaseUser;
+  
   final String storeID;
   final String personID;
   CafeLoginLoadedState(
-      {required this.firebaseUser,
+      {
       required this.storeID,
       required this.personID});
 }
 
-class CafeLoginRequiredVerificationState extends LoginState{
-    final User firebaseUser;
+class CafeLoginRequiredVerificationState extends LoginState {
+  final User firebaseUser;
   final String storeID;
   final String personID;
   CafeLoginRequiredVerificationState(
