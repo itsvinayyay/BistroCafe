@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:food_cafe/widgets/custom_BackButton.dart';
+import 'package:food_cafe/widgets/custom_back_button.dart';
 
 Column loginHeader({
   required BuildContext context,
@@ -19,8 +19,9 @@ Column loginHeader({
         title,
         style: theme.textTheme.titleMedium,
       ),
-      SizedBox(height: 10,),
-      
+      const SizedBox(
+        height: 10,
+      ),
       SizedBox(
         width: 239.w,
         child: Text(
@@ -36,5 +37,12 @@ Text subHeading({required ThemeData theme, required String heading}) {
   return Text(
     heading,
     style: theme.textTheme.titleSmall,
+  );
+}
+
+Text storeSubHeading({required ThemeData theme, required String heading}) {
+  return Text(
+    heading,
+    style: theme.textTheme.labelLarge!.copyWith(height: 1),
   );
 }

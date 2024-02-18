@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:food_cafe/data/models/store_product_analytics_model.dart';
 
 class DailyStatsModel {
@@ -13,9 +11,9 @@ class DailyStatsModel {
       this.totalAmountSold});
 
   DailyStatsModel.empty() {
-    this.totalAmountSold = 0;
-    this.totalItemsRequested = 0;
-    this.totalItemsAccepted = 0;
+    totalAmountSold = 0;
+    totalItemsRequested = 0;
+    totalItemsAccepted = 0;
   }
 
   DailyStatsModel.fromJson(Map<String, dynamic> json) {
@@ -25,10 +23,10 @@ class DailyStatsModel {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['totalItemsAccepted'] = this.totalItemsAccepted;
-    data['totalItemsRequested'] = this.totalItemsRequested;
-    data['totalAmountSold'] = this.totalAmountSold;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['totalItemsAccepted'] = totalItemsAccepted;
+    data['totalItemsRequested'] = totalItemsRequested;
+    data['totalAmountSold'] = totalAmountSold;
     return data;
   }
 }
@@ -53,10 +51,10 @@ class MonthlyStatsModel {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['totalItemsAccepted'] = this.totalItemsAccepted;
-    data['totalItemsRequested'] = this.totalItemsRequested;
-    data['totalAmountSold'] = this.totalAmountSold;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['totalItemsAccepted'] = totalItemsAccepted;
+    data['totalItemsRequested'] = totalItemsRequested;
+    data['totalAmountSold'] = totalAmountSold;
     return data;
   }
 }

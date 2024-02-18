@@ -29,7 +29,7 @@ class Routes {
   static const String analyticsScreen  = "./analyticsScreen";
   static const String forgotPasswordScreen  = "./forgotPasswordScreen";
   static const String forgotPasswordSuccessScreen  = "./forgotPasswordSuccessScreen";
-  static const String settingsScreen  = "./settingsScreen";
+  static const String store_SettingsScreen  = "./storeSettingsScreen";
   static const String changePasswordScreen  = "./changePasswordScreen";
   static const String changePasswordSuccessScreen  = "./changePasswordSuccessScreen";
   static const String deactivateAccountScreen  = "./deactivateAccountScreen";
@@ -37,4 +37,12 @@ class Routes {
   static const String changeUserDetailsScreen  = "./changeUserDetailsScreen";
   static const String changeUserDetailsSuccessScreen  = "./changeUserDetailsSuccessScreen";
   static const String orderHistoryScreen  = "./orderHistoryScreen";
+  static const String categoryScreen  = "./categoryScreen";
+  static const String settingsScreen  = "./settingsScreen";
+  static const String profileScreen  = "./profileScreen";
+  static const String store_managementScreen  = "./store_managementScreen";
+  static const String store_managementUpdated  = "./store_managementUpdated";
+  static const String store_ModifyMenuItemScreen  = "./store_ModifyMenuItemScreen";
+  static const String makePaymentScreen  = "./makePaymentScreen";
+
 }
