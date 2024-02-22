@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_cafe/cubits/cafe_owner_role_cubits/store_add_new_menu_item_cubits/store_add_item_image_cubit/add_item_image_cubit.dart';
@@ -47,8 +46,8 @@ import 'package:food_cafe/screens/store_screens/side_drawer_screens/store_profil
 import 'package:food_cafe/screens/user_screens/check_out_screens/billings_screen.dart';
 import 'package:food_cafe/screens/user_screens/auth_screens/forgot_password_screen.dart';
 import 'package:food_cafe/screens/user_screens/feed_screens/category_screen.dart';
-import 'package:food_cafe/screens/user_screens/on_board_screens/on_board_screen_1.dart';
-import 'package:food_cafe/screens/user_screens/on_board_screens/on_board_screen_2.dart';
+import 'package:food_cafe/screens/common_screens/on_board_screens/on_board_screen_1.dart';
+import 'package:food_cafe/screens/common_screens/on_board_screens/on_board_screen_2.dart';
 
 import 'package:food_cafe/screens/user_screens/check_out_screens/order_placed_screen.dart';
 import 'package:food_cafe/screens/user_screens/check_out_screens/order_request_screen.dart';
@@ -278,9 +277,10 @@ class GeneratedRoutes {
             builder: (context) => const ChangeUserDetailsSuccessScreen(),
             settings: routeSettings);
 
-      // jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj
+      
 
       //CAFE OWNER SCREENS
+
       //AUTH SCREENS
       case Routes.store_SignIn:
         return MaterialPageRoute(
@@ -405,11 +405,11 @@ class GeneratedRoutes {
             settings: routeSettings);
 
       default:
-        return error_Screen();
+        return errorScreen();
     }
   }
 
-  static MaterialPageRoute<dynamic> error_Screen() {
+  static MaterialPageRoute<dynamic> errorScreen() {
     return MaterialPageRoute(
       builder: (context) => const Scaffold(
         body: SafeArea(

@@ -15,6 +15,7 @@ import 'package:food_cafe/widgets/custom_alert_dialog_box.dart';
 import 'package:food_cafe/widgets/custom_circular_progress_indicator.dart';
 import 'package:food_cafe/widgets/custom_empty_error.dart';
 import 'package:food_cafe/widgets/custom_snackbar.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -70,22 +71,32 @@ class _CartScreenState extends State<CartScreen> {
               context: context,
               theme: theme,
               onPressed: () async {
-                await checkConnectivity(
-                    context: context,
-                    onConnected: () async {
-                      if (context.read<CartLocalState>().state.isNotEmpty) {
-                        await _checkTimingsCubit.initiateTimeCheck(
-                            storeID: 'SMVDU101');
-                        if (context.mounted) {
-                          await context
-                              .read<CartLocalState>()
-                              .syncLocalState(personID: personID);
+                context.loaderOverlay.show();
+                await Future.delayed(Duration(seconds: 1));
+                if (context.mounted) {
+                  await checkConnectivity(
+                      context: context,
+                      onConnected: () async {
+                        //TODO Check this Duration
+
+                        if (context.read<CartLocalState>().state.isNotEmpty) {
+                          await _checkTimingsCubit.initiateTimeCheck(
+                              storeID: 'SMVDU101');
+                          if (context.mounted) {
+                            await context
+                                .read<CartLocalState>()
+                                .syncLocalState(personID: personID);
+                          }
+                        } else {
+                          showSnackBar(
+                              context: context, error: 'Nothing to Checkout!');
                         }
-                      } else {
-                        showSnackBar(
-                            context: context, error: 'Nothing to Checkout!');
-                      }
-                    });
+                      });
+                }
+
+                if (context.mounted) {
+                  context.loaderOverlay.hide();
+                }
               },
               title: 'Proceed');
         },

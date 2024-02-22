@@ -20,8 +20,9 @@ import 'package:food_cafe/core/routes/generated_routes.dart';
 import 'package:food_cafe/screens/store_screens/home_screens/store_home_screen.dart';
 import 'package:food_cafe/screens/user_screens/auth_screens/sign_in_screen.dart';
 import 'package:food_cafe/screens/user_screens/auth_screens/sign_up_verification_screen.dart';
-import 'package:food_cafe/screens/user_screens/on_board_screens/on_board_screen_1.dart';
+import 'package:food_cafe/screens/common_screens/on_board_screens/on_board_screen_1.dart';
 import 'package:food_cafe/utils/theme_check.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -68,39 +69,42 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         onGenerateRoute: GeneratedRoutes.generateRoutes,
         theme: theme,
-        home: BlocBuilder<LoginCubit, LoginState>(
-          buildWhen: (oldstate, newstate) {
-            return oldstate is LoginSplashState;
-          },
-          builder: (context, state) {
-            if (state is LoginLoggedInState) {
-              return MultiBlocProvider(providers: [
-                BlocProvider(
-                  create: (context) => CartDisplayCubit(),
-                ),
-                BlocProvider(
-                  create: (context) => HomeMenuItemsCubit(),
-                ),
-              ], child: const BottomNavBar());
-            } else if (state is CafeLoginLoadedState) {
-              return BlocProvider(
-                create: (context) => HomePastOrdersCubit(),
-                child: const StoreHomeScreen(),
-              );
-            } else if (state is LoginRequiredVerificationState ||
-                state is CafeLoginRequiredVerificationState) {
-              return const SignUpVerification();
-            } else if (state is LoginLoggedOutState) {
-              return BlocProvider(
-                create: (context) => PasswordVisibility(),
-                child: const SignInScreen(),
-              );
-            } else if (state is LoginInitialState) {
-              return const OnBoard();
-            }
-
-            return const SplashScreen();
-          },
+        //TODO: Added Loader Overlay here!
+        home: LoaderOverlay(
+          child: BlocBuilder<LoginCubit, LoginState>(
+            buildWhen: (oldstate, newstate) {
+              return oldstate is LoginSplashState;
+            },
+            builder: (context, state) {
+              if (state is LoginLoggedInState) {
+                return MultiBlocProvider(providers: [
+                  BlocProvider(
+                    create: (context) => CartDisplayCubit(),
+                  ),
+                  BlocProvider(
+                    create: (context) => HomeMenuItemsCubit(),
+                  ),
+                ], child: const BottomNavBar());
+              } else if (state is CafeLoginLoadedState) {
+                return BlocProvider(
+                  create: (context) => HomePastOrdersCubit(),
+                  child: const StoreHomeScreen(),
+                );
+              } else if (state is LoginRequiredVerificationState ||
+                  state is CafeLoginRequiredVerificationState) {
+                return const SignUpVerification();
+              } else if (state is LoginLoggedOutState) {
+                return BlocProvider(
+                  create: (context) => PasswordVisibility(),
+                  child: const SignInScreen(),
+                );
+              } else if (state is LoginInitialState) {
+                return const OnBoard();
+              }
+          
+              return const SplashScreen();
+            },
+          ),
         ));
   }
 }

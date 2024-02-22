@@ -143,7 +143,7 @@ class kTextTheme {
       fontFamily: 'BentonSans_Bold',
       fontSize: 19.sp,
       fontWeight: FontWeight.w400,
-      color: Color(0XFF4023D7),
+      color: Color(0XFFE0C882),
     ),
     labelMedium: TextStyle(
         fontFamily: 'BentonSans_Medium',

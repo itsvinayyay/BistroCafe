@@ -6,6 +6,7 @@ import 'package:food_cafe/core/theme/theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food_cafe/utils/theme_check.dart';
 import 'package:food_cafe/widgets/custom_back_button.dart';
+import 'package:food_cafe/widgets/headings.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -49,10 +50,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(
                   height: 20,
                 ),
-                Text(
-                  "GENERAL",
-                  style: theme.textTheme.labelLarge!.copyWith(fontSize: 20),
-                ),
+                storeSubHeading(theme: theme, heading: 'GENERAL'),
                 const SizedBox(
                   height: 10,
                 ),
@@ -104,10 +102,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(
                   height: 20,
                 ),
-                Text(
-                  "FEEDBACK",
-                  style: theme.textTheme.labelLarge!.copyWith(fontSize: 20),
-                ),
+                storeSubHeading(theme: theme, heading: 'GENERAL'),
                 buildSettingsOption(
                     theme: theme,
                     iconData: Icons.info_outline_rounded,

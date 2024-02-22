@@ -7,6 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food_cafe/data/services/connectivity_service.dart';
 import 'package:food_cafe/utils/theme_check.dart';
 import 'package:food_cafe/widgets/custom_back_button.dart';
+import 'package:food_cafe/widgets/headings.dart';
 
 class StoreSettingsScreen extends StatefulWidget {
   const StoreSettingsScreen({super.key});
@@ -44,10 +45,7 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                 const SizedBox(
                   height: 20,
                 ),
-                Text(
-                  "GENERAL",
-                  style: theme.textTheme.labelLarge!.copyWith(fontSize: 20),
-                ),
+                storeSubHeading(theme: theme, heading: 'GENERAL'),
                 const SizedBox(
                   height: 10,
                 ),
@@ -56,7 +54,7 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.lightbulb),
+                         Icon(Icons.lightbulb, color: theme.colorScheme.tertiary,),
                         const SizedBox(
                           width: 10,
                         ),
@@ -96,10 +94,7 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                 const SizedBox(
                   height: 20,
                 ),
-                Text(
-                  "CAFE MANAGEMENT",
-                  style: theme.textTheme.labelLarge!.copyWith(fontSize: 20),
-                ),
+                storeSubHeading(theme: theme, heading: 'CAFE MANAGEMENT'),
                 buildSettingsOption(
                     theme: theme,
                     iconData: Icons.access_time_filled_rounded,
@@ -115,10 +110,7 @@ class _StoreSettingsScreenState extends State<StoreSettingsScreen> {
                 const SizedBox(
                   height: 20,
                 ),
-                Text(
-                  "FEEDBACK",
-                  style: theme.textTheme.labelLarge!.copyWith(fontSize: 20),
-                ),
+                storeSubHeading(theme: theme, heading: 'FEEDBACK'),
                 buildSettingsOption(
                     theme: theme,
                     iconData: Icons.info_outline_rounded,

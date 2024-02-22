@@ -21,6 +21,8 @@ import 'package:food_cafe/screens/user_screens/custom_cards/home_screen_food_car
 import 'package:food_cafe/widgets/custom_circular_progress_indicator.dart';
 import 'package:food_cafe/widgets/custom_error.dart';
 import 'package:food_cafe/widgets/custom_internet_error.dart';
+import 'package:food_cafe/widgets/custom_overlay_loader.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -299,6 +301,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         item: card,
                                                         context: context);
                                               });
+
+                                          if (context.mounted) {
+                                            context.loaderOverlay.show();
+                                            await Future.delayed(
+                                                const Duration(seconds: 1));
+                                          }
+
+                                          if (context.mounted) {
+                                            context.loaderOverlay.hide();
+                                          }
                                         },
                                       );
                                     },

@@ -213,9 +213,9 @@ class _StoreHomeScreenState extends State<StoreHomeScreen> {
                 const SizedBox(
                   height: 20,
                 ),
-                subHeading(theme: theme, heading: "Past Orders"),
+                storeSubHeading(theme: theme, heading: 'PAST ORDERS'),
                 const SizedBox(
-                  height: 20,
+                  height: 10,
                 ),
                 BlocBuilder<HomePastOrdersCubit, HomePastOrdersState>(
                     builder: (context, state) {

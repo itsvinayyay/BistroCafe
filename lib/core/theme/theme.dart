@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:food_cafe/core/theme/text_theme.dart';
 
 ThemeData lightTheme = ThemeData(
-  colorScheme: ColorScheme.dark(
-    background: const Color(0XFFFEFEFF),
-    primary: const Color(0XFF6B50F6).withOpacity(0.2),
-    secondary: const Color(0XFF6B50F6),
-    tertiary: const Color(0XFF00FF66).withOpacity(0.8),
+  colorScheme: const ColorScheme.light(
+    background: Color.fromARGB(255, 235, 231, 248),
+    primary: Color(0XFFF9D4FF),
+    secondary: Color(0XFFE0C882),
+    tertiary: Color(0xFFff8c00),
     brightness: Brightness.light,
   ),
-  textTheme: kTextTheme.lightTextTheme
+  textTheme: kTextTheme.lightTextTheme,
 );
+
 
 ThemeData darkTheme = ThemeData(
   colorScheme: const ColorScheme.dark(

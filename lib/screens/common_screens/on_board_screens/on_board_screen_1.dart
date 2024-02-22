@@ -4,14 +4,16 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food_cafe/cubits/common_cubits/theme_cubit/theme_cubit.dart';
 import 'package:food_cafe/core/routes/named_routes.dart';
 import 'package:food_cafe/core/theme/theme.dart';
+import 'package:food_cafe/widgets/custom_text_button.dart';
 
-class OnBoard2 extends StatelessWidget {
-  const OnBoard2({Key? key}) : super(key: key);
+class OnBoard extends StatelessWidget {
+  const OnBoard({super.key});
 
   @override
   Widget build(BuildContext context) {
     final themeMode = context.watch<ThemeCubit>().state;
     final ThemeData theme = themeMode == MyTheme.dark ? darkTheme : lightTheme;
+
     return Scaffold(
       backgroundColor: theme.colorScheme.background,
       body: SafeArea(
@@ -19,14 +21,14 @@ class OnBoard2 extends StatelessWidget {
           padding: EdgeInsets.only(top: 90.h),
           child: Column(
             children: [
-              Image.asset("assets/images/onboard-2.png"),
+              Hero(tag: 'onboard',child: Image.asset("assets/images/onboard-1.png")),
               SizedBox(
                 height: 48.h,
               ),
               SizedBox(
-                width: 348.w,
+                width: 211.w,
                 child: Text(
-                  "SMVDU Food Court is where your Comfort Food Lives",
+                  "Find your Comfort Food here",
                   style: theme.textTheme.headlineMedium,
                   textAlign: TextAlign.center,
                 ),
@@ -35,9 +37,9 @@ class OnBoard2 extends StatelessWidget {
                 height: 20.h,
               ),
               SizedBox(
-                width: 244.w,
+                width: 300.w,
                 child: Text(
-                  "Enjoy a fast and smooth food delivery at your Hostels!",
+                  "Experience culinary delight with BistroCafe – Your go-to food solution.",
                   style: theme.textTheme.bodyMedium,
                   textAlign: TextAlign.center,
                 ),
@@ -45,25 +47,15 @@ class OnBoard2 extends StatelessWidget {
               SizedBox(
                 height: 42.h,
               ),
-              TextButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, Routes.signIn);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.colorScheme.secondary,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15),
-                  ),
-                  padding: EdgeInsets.symmetric(horizontal: 60.w, vertical: 18.h),
-                ),
-                child: Text(
-                  "Next",
-                  style: theme.textTheme.titleSmall,
-                ),
-              )
+              customButton(context: context, theme: theme, onPressed: (){
+                Navigator.pushNamed(context, Routes.onboard2);
+              }, title: "Next")
             ],
           ),
         ),
       ),
     );
   }
+
+
 }

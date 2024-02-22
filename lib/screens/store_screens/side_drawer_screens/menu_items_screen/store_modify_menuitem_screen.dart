@@ -18,6 +18,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food_cafe/utils/constants.dart';
 import 'package:food_cafe/utils/login_state_check.dart';
 import 'package:food_cafe/widgets/custom_back_button.dart';
+import 'package:food_cafe/widgets/custom_circular_progress_indicator.dart';
 import 'package:food_cafe/widgets/custom_text_button.dart';
 import 'package:food_cafe/widgets/custom_snackbar.dart';
 import 'package:food_cafe/widgets/headings.dart';
@@ -304,89 +305,86 @@ class _ModifyMenuItemScreenState extends State<ModifyMenuItemScreen> {
                       const SizedBox(
                         height: 5,
                       ),
-                      BlocProvider(
-                        create: (context) => AddImageCubit(),
-                        child: BlocConsumer<AddImageCubit, AddImage>(
-                          listener: (context, state) {
-                            if (state is ImageErrorState) {
-                              showSnackBar(
-                                  context: context, error: state.error);
-                            }
-                          },
-                          builder: (context, state) {
-                            if (state is ImageLoadingState) {
-                              return const CircularProgressIndicator();
-                            } else if (state is ImageInitialState ||
-                                state is ImageErrorState) {
-                              return Row(
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(10),
-                                    child: SizedBox(
-                                      width: 90.w,
-                                      child: AspectRatio(
-                                        aspectRatio: 1,
-                                        child: CachedNetworkImage(
-                                          fit: BoxFit.cover,
-                                          imageUrl: imageUrl,
-                                          errorWidget: (context, url, error) =>
-                                              Container(
-                                            height: 85.h,
-                                            margin: const EdgeInsets.only(
-                                                bottom: 5),
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
-                                            ),
-                                            child: const Icon(Icons.error),
+                      BlocConsumer<AddImageCubit, AddImage>(
+                        listener: (context, state) {
+                          if (state is ImageErrorState) {
+                            showSnackBar(
+                                context: context, error: state.error);
+                          }
+                        },
+                        builder: (context, state) {
+                          if (state is ImageLoadingState) {
+                            return const CircularProgressIndicator();
+                          } else if (state is ImageInitialState ||
+                              state is ImageErrorState) {
+                            return Row(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: SizedBox(
+                                    width: 90.w,
+                                    child: AspectRatio(
+                                      aspectRatio: 1,
+                                      child: CachedNetworkImage(
+                                        fit: BoxFit.cover,
+                                        imageUrl: imageUrl,
+                                        errorWidget: (context, url, error) =>
+                                            Container(
+                                          height: 85.h,
+                                          margin: const EdgeInsets.only(
+                                              bottom: 5),
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(20),
                                           ),
-                                          progressIndicatorBuilder:
-                                              (context, url, downloadProgress) {
-                                            return Center(
-                                              child: CircularProgressIndicator(
-                                                value:
-                                                    downloadProgress.progress,
-                                              ),
-                                            );
-                                          },
+                                          child: const Icon(Icons.error),
                                         ),
+                                        progressIndicatorBuilder:
+                                            (context, url, downloadProgress) {
+                                          return Center(
+                                            child: CircularProgressIndicator(
+                                              value:
+                                                  downloadProgress.progress,
+                                            ),
+                                          );
+                                        },
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
-                                  storePickImageButton(
-                                      onTap: () {
-                                        isModified = true;
-                                        _addImageCubit.pickImage();
-                                      },
-                                      theme: theme,
-                                      toChangeImage: true),
-                                ],
-                              );
-                            } else if (state is ImageLoadedState) {
-                              imageFile = state.image;
-                              return Row(
-                                children: [
-                                  storePickedImageView(
-                                      pickedImage: state.image),
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
-                                  storePickImageButton(
-                                      onTap: () {
-                                        isModified = true;
-                                        _addImageCubit.pickImage();
-                                      },
-                                      theme: theme,
-                                      toChangeImage: true),
-                                ],
-                              );
-                            }
-                            return const Text("Waiting!");
-                          },
-                        ),
+                                ),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                storePickImageButton(
+                                    onTap: () {
+                                      isModified = true;
+                                      _addImageCubit.pickImage();
+                                    },
+                                    theme: theme,
+                                    toChangeImage: true),
+                              ],
+                            );
+                          } else if (state is ImageLoadedState) {
+                            imageFile = state.image;
+                            return Row(
+                              children: [
+                                storePickedImageView(
+                                    pickedImage: state.image),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                storePickImageButton(
+                                    onTap: () {
+                                      isModified = true;
+                                      _addImageCubit.pickImage();
+                                    },
+                                    theme: theme,
+                                    toChangeImage: true),
+                              ],
+                            );
+                          }
+                          return const Text("Waiting!");
+                        },
                       ),
                       const SizedBox(
                         height: 40,
@@ -400,7 +398,7 @@ class _ModifyMenuItemScreenState extends State<ModifyMenuItemScreen> {
                         },
                         builder: (context, state) {
                           if (state is ModifyMenuItemLoadingState) {
-                            return const CircularProgressIndicator();
+                            return const CustomCircularProgress();
                           } else if (state is ModifyMenuItemErrorState) {
                             return Center(
                               child: Text(state.error),
