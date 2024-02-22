@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_cafe/cubits/cafe_owner_role_cubits/store_add_new_menu_item_cubits/store_add_item_image_cubit/add_item_image_cubit.dart';
@@ -7,10 +9,9 @@ import 'package:food_cafe/cubits/common_cubits/password_visibility_cubits/passwo
 import 'package:food_cafe/cubits/cafe_owner_role_cubits/store_home_cubit/store_home_cubit.dart';
 import 'package:food_cafe/cubits/cafe_owner_role_cubits/store_add_new_menu_item_cubits/store_add_menu_item_cubit/add_menu_item_cubit.dart';
 import 'package:food_cafe/cubits/cafe_owner_role_cubits/store_modify_menuitem_cubit.dart/modify_menuitem_cubit.dart';
-import 'package:food_cafe/cubits/user_role_cubits/billing_cubit/checkout_cubit/billing_checkout_cubit.dart';
-import 'package:food_cafe/cubits/user_role_cubits/cart_cubits/cart_local_state_cubit/cart_local_state_cubit.dart';
 import 'package:food_cafe/cubits/user_role_cubits/home_menu_item_cubit/home_menu_item_cubit.dart';
 import 'package:food_cafe/cubits/user_role_cubits/cart_cubits/cart_display_cubit/cart_display_cubit.dart';
+import 'package:food_cafe/cubits/user_role_cubits/payment_cubit/payment_cubit.dart';
 import 'package:food_cafe/data/models/store_menu_item_model.dart';
 import 'package:food_cafe/screens/common_screens/change_password_screen.dart';
 import 'package:food_cafe/screens/common_screens/change_password_success_screen.dart';
@@ -48,7 +49,6 @@ import 'package:food_cafe/screens/user_screens/auth_screens/forgot_password_scre
 import 'package:food_cafe/screens/user_screens/feed_screens/category_screen.dart';
 import 'package:food_cafe/screens/user_screens/on_board_screens/on_board_screen_1.dart';
 import 'package:food_cafe/screens/user_screens/on_board_screens/on_board_screen_2.dart';
-import 'package:food_cafe/screens/user_screens/side_drawer_screens/notifications_screen.dart';
 
 import 'package:food_cafe/screens/user_screens/check_out_screens/order_placed_screen.dart';
 import 'package:food_cafe/screens/user_screens/check_out_screens/order_request_screen.dart';
@@ -68,7 +68,7 @@ import 'package:food_cafe/screens/user_screens/side_drawer_screens/settings_scre
 
 class GeneratedRoutes {
   static Route generateRoutes(RouteSettings routeSettings) {
-    debugPrint("Navigating to route!!!=======>> ${routeSettings.name}");
+    log("Navigating to route!!!=======>> ${routeSettings.name}");
 
     switch (routeSettings.name) {
       //SPLASH SCREEN
@@ -76,11 +76,11 @@ class GeneratedRoutes {
       //ONBOARDING SCREEN
       case Routes.onboard1:
         return MaterialPageRoute(
-            builder: (context) => OnBoard(), settings: routeSettings);
+            builder: (context) => const OnBoard(), settings: routeSettings);
 
       case Routes.onboard2:
         return MaterialPageRoute(
-            builder: (context) => OnBoard2(), settings: routeSettings);
+            builder: (context) => const OnBoard2(), settings: routeSettings);
 
       //AUTH SCREENS (USER)
 
@@ -88,7 +88,7 @@ class GeneratedRoutes {
         return MaterialPageRoute(
             builder: (context) => BlocProvider(
                   create: (context) => PasswordVisibility(),
-                  child: SignInScreen(),
+                  child: const SignInScreen(),
                 ),
             settings: routeSettings);
 
@@ -98,24 +98,25 @@ class GeneratedRoutes {
                   BlocProvider(create: (context) => PasswordVisibility()),
                   BlocProvider(
                       create: (context) => ConfirmPasswordVisibility()),
-                ], child: SignUp()),
+                ], child: const SignUp()),
             settings: routeSettings);
 
       case Routes.signUpSuccess:
         return MaterialPageRoute(
-            builder: (context) => SignUpSuccess(), settings: routeSettings);
+            builder: (context) => const SignUpSuccess(),
+            settings: routeSettings);
 
       case Routes.forgotPasswordScreen:
         return MaterialPageRoute(
             builder: (context) => BlocProvider(
                   create: (context) => ForgotPasswordCubit(),
-                  child: ForgotPasswordScreen(),
+                  child: const ForgotPasswordScreen(),
                 ),
             settings: routeSettings);
 
       case Routes.forgotPasswordSuccessScreen:
         return MaterialPageRoute(
-            builder: (context) => ForgotPasswordSuccess(),
+            builder: (context) => const ForgotPasswordSuccess(),
             settings: routeSettings);
 
       case Routes.signupVerification:
@@ -127,7 +128,7 @@ class GeneratedRoutes {
                   BlocProvider(
                     create: (context) => ResendVerificationCubit(),
                   ),
-                ], child: SignUpVerification()),
+                ], child: const SignUpVerification()),
             settings: routeSettings);
 
 //USER SCREENS
@@ -143,16 +144,16 @@ class GeneratedRoutes {
                   BlocProvider(
                     create: (context) => HomeMenuItemsCubit(),
                   ),
-                ], child: BottomNavBar()),
+                ], child: const BottomNavBar()),
             settings: routeSettings);
 
       case Routes.homeScreen:
         return MaterialPageRoute(
-            builder: (context) => HomeScreen(), settings: routeSettings);
+            builder: (context) => const HomeScreen(), settings: routeSettings);
 
       case Routes.cartScreen:
         return MaterialPageRoute(
-            builder: (context) => CartScreen(), settings: routeSettings);
+            builder: (context) => const CartScreen(), settings: routeSettings);
 
       case Routes.categoryScreen:
         return MaterialPageRoute(
@@ -164,9 +165,7 @@ class GeneratedRoutes {
                 ),
             settings: routeSettings);
 
-      case Routes.notificationsScreen:
-        return MaterialPageRoute(
-            builder: (context) => Notifications(), settings: routeSettings);
+      
 
       //CHECKOUT SCREENS
 
@@ -180,7 +179,7 @@ class GeneratedRoutes {
                   BlocProvider(create: (context) => BillingPaymentCubit()),
                   BlocProvider(
                       create: (context) => BillingDineSelectionCubit()),
-                ], child: BillingScreen()),
+                ], child: const BillingScreen()),
             settings: routeSettings);
 
       case Routes.orderPlaced:
@@ -202,11 +201,16 @@ class GeneratedRoutes {
 
       case Routes.paymentScreen:
         return MaterialPageRoute(
-            builder: (context) => PaymentScreen(), settings: routeSettings);
+            builder: (context) => BlocProvider(
+                  create: (context) => PaymentCubit(),
+                  child: const PaymentScreen(),
+                ),
+            settings: routeSettings);
 
       case Routes.makePaymentScreen:
         return MaterialPageRoute(
-            builder: (context) => MakePaymentScreen(), settings: routeSettings);
+            builder: (context) => const MakePaymentScreen(),
+            settings: routeSettings);
 
       //SIDE DRAWER SCREENS
 
@@ -214,19 +218,20 @@ class GeneratedRoutes {
         return MaterialPageRoute(
             builder: (context) => BlocProvider(
                   create: (context) => OrderHistoryCubit(),
-                  child: OrderHistoryScreen(),
+                  child: const OrderHistoryScreen(),
                 ),
             settings: routeSettings);
 
       case Routes.settingsScreen:
         return MaterialPageRoute(
-            builder: (context) => SettingsScreen(), settings: routeSettings);
+            builder: (context) => const SettingsScreen(),
+            settings: routeSettings);
 
       case Routes.profileScreen:
         return MaterialPageRoute(
             builder: (context) => BlocProvider(
                   create: (context) => UserNameCubit(),
-                  child: ProfileScreen(),
+                  child: const ProfileScreen(),
                 ),
             settings: routeSettings);
 
@@ -240,12 +245,12 @@ class GeneratedRoutes {
                   BlocProvider(
                       create: (context) => ConfirmPasswordVisibility()),
                   BlocProvider(create: (context) => ChangePasswordCubit()),
-                ], child: ChangePasswordScreen()),
+                ], child: const ChangePasswordScreen()),
             settings: routeSettings);
 
       case Routes.changePasswordSuccessScreen:
         return MaterialPageRoute(
-            builder: (context) => ChangePasswordSuccessScreen(),
+            builder: (context) => const ChangePasswordSuccessScreen(),
             settings: routeSettings);
 
       case Routes.deactivateAccountScreen:
@@ -255,7 +260,7 @@ class GeneratedRoutes {
                     create: (context) => PasswordVisibility(),
                   ),
                   BlocProvider(create: (context) => DeactivateAccountCubit())
-                ], child: DeactivateAccountScreen()),
+                ], child: const DeactivateAccountScreen()),
             settings: routeSettings);
 
       case Routes.changeUserDetailsScreen:
@@ -270,7 +275,7 @@ class GeneratedRoutes {
 
       case Routes.changeUserDetailsSuccessScreen:
         return MaterialPageRoute(
-            builder: (context) => ChangeUserDetailsSuccessScreen(),
+            builder: (context) => const ChangeUserDetailsSuccessScreen(),
             settings: routeSettings);
 
       // jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj
@@ -281,7 +286,7 @@ class GeneratedRoutes {
         return MaterialPageRoute(
             builder: (context) => BlocProvider(
                   create: (context) => PasswordVisibility(),
-                  child: StoreSignInScreen(),
+                  child: const StoreSignInScreen(),
                 ),
             settings: routeSettings);
 
@@ -290,7 +295,7 @@ class GeneratedRoutes {
         return MaterialPageRoute(
             builder: (context) => BlocProvider(
                   create: (context) => HomePastOrdersCubit(),
-                  child: StoreHomeScreen(),
+                  child: const StoreHomeScreen(),
                 ),
             settings: routeSettings);
 
@@ -298,7 +303,7 @@ class GeneratedRoutes {
         return MaterialPageRoute(
             builder: (context) => BlocProvider(
                   create: (context) => AnalyticsCubit(),
-                  child: AnalyticsScreen(),
+                  child: const AnalyticsScreen(),
                 ),
             settings: routeSettings);
 
@@ -319,19 +324,19 @@ class GeneratedRoutes {
                   BlocProvider(
                     create: (context) => AddItemCubit(),
                   ),
-                ], child: StoreAddMenuItemScreen()),
+                ], child: const StoreAddMenuItemScreen()),
             settings: routeSettings);
 
       case Routes.store_ItemAdded:
         return MaterialPageRoute(
-            builder: (context) => StoreMenuItemAddedScreen(),
+            builder: (context) => const StoreMenuItemAddedScreen(),
             settings: routeSettings);
 
       case Routes.store_menuItems:
         return MaterialPageRoute(
             builder: (context) => BlocProvider(
                   create: (context) => MenuItemCubit(),
-                  child: StoreMenuItemsScreen(),
+                  child: const StoreMenuItemsScreen(),
                 ),
             settings: routeSettings);
 
@@ -367,12 +372,13 @@ class GeneratedRoutes {
 
       case Routes.store_OrdersScreen:
         return MaterialPageRoute(
-            builder: (context) => StoreOrdersScreen(), settings: routeSettings);
+            builder: (context) => const StoreOrdersScreen(),
+            settings: routeSettings);
 
       //SETTINGS SCREENS
       case Routes.store_SettingsScreen:
         return MaterialPageRoute(
-            builder: (context) => StoreSettingsScreen(),
+            builder: (context) => const StoreSettingsScreen(),
             settings: routeSettings);
 
       case Routes.store_managementScreen:
@@ -382,19 +388,19 @@ class GeneratedRoutes {
                   BlocProvider(create: (context) => ClosingTimeCubit()),
                   BlocProvider(create: (context) => AvailibilityCubit()),
                   BlocProvider(create: (context) => ManagementCubit()),
-                ], child: StoreManagementScreen()),
+                ], child: const StoreManagementScreen()),
             settings: routeSettings);
 
       case Routes.store_managementUpdated:
         return MaterialPageRoute(
-            builder: (context) => StoreManagementUpdated(),
+            builder: (context) => const StoreManagementUpdated(),
             settings: routeSettings);
 
       case Routes.store_profileScreen:
         return MaterialPageRoute(
             builder: (context) => BlocProvider(
                   create: (context) => UserNameCubit(),
-                  child: StoreProfileScreen(),
+                  child: const StoreProfileScreen(),
                 ),
             settings: routeSettings);
 

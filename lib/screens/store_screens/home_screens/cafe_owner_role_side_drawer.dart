@@ -18,6 +18,8 @@ class CafeOwnerRoleSideDrawer extends StatelessWidget {
           topLeft: Radius.circular(40), bottomLeft: Radius.circular(40)),
       child: Drawer(
         backgroundColor: theme.colorScheme.primary,
+        
+        
         child: Column(
           children: <Widget>[
             Expanded(
@@ -63,6 +65,7 @@ class CafeOwnerRoleSideDrawer extends StatelessWidget {
             Expanded(
               flex: 7,
               child: ListView(
+                
                 padding: EdgeInsets.zero,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),

@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food_cafe/cubits/cafe_owner_role_cubits/store_orders_cubit/requestedOrders_cubit/requested_orders_cubit.dart';
 import 'package:food_cafe/cubits/cafe_owner_role_cubits/store_orders_cubit/requestedOrders_cubit/requested_orders_states.dart';
 import 'package:food_cafe/data/services/connectivity_service.dart';
+import 'package:food_cafe/data/services/notification_services.dart';
 import 'package:food_cafe/screens/store_screens/store_custom_cards/requested_orders_screen_card.dart';
 import 'package:food_cafe/utils/login_state_check.dart';
 import 'package:food_cafe/utils/theme_check.dart';
@@ -20,6 +21,7 @@ class RequestedOrdersScreen extends StatefulWidget {
 }
 
 class _RequestedOrdersScreenState extends State<RequestedOrdersScreen> {
+  final NotificationServices _notificationServices = NotificationServices();
   late RequestedOrdersCubit _requestedOrdersCubit = RequestedOrdersCubit();
   late String storeID;
 
@@ -35,6 +37,7 @@ class _RequestedOrdersScreenState extends State<RequestedOrdersScreen> {
   void initState() {
     super.initState();
     _initializeCubits();
+    _notificationServices.isTokenRefresh(storeID: storeID);
   }
 
   @override

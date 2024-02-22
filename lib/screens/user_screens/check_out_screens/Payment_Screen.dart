@@ -11,7 +11,7 @@ import 'package:food_cafe/widgets/custom_text_button.dart';
 import 'package:food_cafe/widgets/custom_circular_progress_indicator.dart';
 
 class PaymentScreen extends StatefulWidget {
-  const PaymentScreen({Key? key}) : super(key: key);
+  const PaymentScreen({super.key});
 
   @override
   State<PaymentScreen> createState() => _PaymentScreenState();
@@ -19,19 +19,24 @@ class PaymentScreen extends StatefulWidget {
 
 class _PaymentScreenState extends State<PaymentScreen> {
   // late PaymentAppCubit paymentAppCubit = PaymentAppCubit();
-  late PaymentCubit paymentCubit = PaymentCubit();
+  late PaymentCubit _paymentCubit = PaymentCubit();
   late BillingCheckOutCubit billingCheckOutCubit;
   late String _orderID;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     // paymentAppCubit = BlocProvider.of(context);
     // paymentAppCubit.loadUpiApps();
-    paymentCubit = BlocProvider.of(context);
+    _paymentCubit = BlocProvider.of(context);
     billingCheckOutCubit = BlocProvider.of<BillingCheckOutCubit>(context);
     _orderID = billingCheckOutCubit.receivedOrderID;
     // paymentCubit.initiateTransaction(ordID: _orderID, storeID: 'SMVDU101');
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _paymentCubit.close();
   }
 
   @override
@@ -45,62 +50,16 @@ class _PaymentScreenState extends State<PaymentScreen> {
           padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 15),
           child: Column(
             children: [
-              SizedBox(
+              const SizedBox(
                 height: 40,
               ),
               Text(
                 "Demo Payment Gateway",
                 style: theme.textTheme.titleMedium,
               ),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
-              // BlocBuilder<PaymentAppCubit, PaymentAppsState>(
-              //     builder: (context, state) {
-              //   if (state is PaymentAppLoadingState) {
-              //     return Center(
-              //       child: CircularProgressIndicator(color: Colors.white),
-              //     );
-              //   } else if (state is PaymentAppErrorState) {
-              //     Center(
-              //       child: Text(state.message),
-              //     );
-              //   }
-              //   return SingleChildScrollView(
-              //     physics: BouncingScrollPhysics(),
-              //     child: Wrap(
-              //       children: [
-              //         ...List.generate(state.upiApps.length, (index) {
-              //           final app = state.upiApps[index];
-              //           return GestureDetector(
-              //             onTap: () {
-              //               paymentCubit.initiateTransaction(
-              //                   app: app,
-              //                   ordID: _orderID,
-              //                   storeID: 'SMVDU101');
-              //             },
-              //             child: Container(
-              //               height: 100,
-              //               width: 100,
-              //               child: Column(
-              //                 mainAxisSize: MainAxisSize.min,
-              //                 mainAxisAlignment: MainAxisAlignment.center,
-              //                 children: <Widget>[
-              //                   Image.memory(
-              //                     app.icon,
-              //                     height: 60,
-              //                     width: 60,
-              //                   ),
-              //                   Text(app.name),
-              //                 ],
-              //               ),
-              //             ),
-              //           );
-              //         })
-              //       ],
-              //     ),
-              //   );
-              // })
 
               BlocConsumer<PaymentCubit, PaymentState>(
                 listener: (context, state) {
@@ -117,22 +76,22 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 },
                 builder: (context, state) {
                   if (state is PaymentLoadingState) {
-                    return CustomCircularProgress();
+                    return const CustomCircularProgress();
                   } else if (state is PaymentLoadedState) {
-                    return Text('Payment Made!');
+                    return const Text('Payment Made!');
                   }
                   return customButton(
                       context: context,
                       theme: theme,
                       onPressed: () {
-                        paymentCubit.makeTransactionSuccess(
+                        _paymentCubit.makeTransactionSuccess(
                             orderID: _orderID, storeID: 'SMVDU101');
                       },
                       title: 'Make Payment');
                 },
               ),
 
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
               BlocConsumer<PaymentCubit, PaymentState>(
@@ -150,15 +109,15 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 },
                 builder: (context, state) {
                   if (state is PaymentLoadingState) {
-                    return CustomCircularProgress();
+                    return const CustomCircularProgress();
                   } else if (state is PaymentLoadedState) {
-                    return Text('Payment Made!');
+                    return const Text('Payment Made!');
                   }
                   return customButton(
                       context: context,
                       theme: theme,
                       onPressed: () {
-                        paymentCubit.makeTransactionFailure(
+                        _paymentCubit.makeTransactionFailure(
                             orderID: _orderID, storeID: 'SMVDU101');
                       },
                       title: 'Reject Payment');

@@ -6,6 +6,7 @@ import 'package:food_cafe/cubits/cafe_owner_role_cubits/store_orders_cubit/curre
 import 'package:food_cafe/data/services/connectivity_service.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:food_cafe/data/services/notification_services.dart';
 import 'package:food_cafe/screens/store_screens/store_custom_cards/current_orders_screen_card.dart';
 import 'package:food_cafe/utils/login_state_check.dart';
 import 'package:food_cafe/utils/theme_check.dart';
@@ -24,6 +25,7 @@ class CurrentOrdersScreen extends StatefulWidget {
 class _CurrentOrdersScreenState extends State<CurrentOrdersScreen> {
   late CurrentOrdersCubit _currentOrdersCubit = CurrentOrdersCubit();
   late String storeID;
+  final NotificationServices _notificationServices = NotificationServices();
 
   void _initializeCubits() {
     storeID = checkLoginStateForCafeOwner(
@@ -31,6 +33,7 @@ class _CurrentOrdersScreenState extends State<CurrentOrdersScreen> {
         .value;
     _currentOrdersCubit = BlocProvider.of<CurrentOrdersCubit>(context);
     _currentOrdersCubit.initialize(storeID);
+    _notificationServices.isTokenRefresh(storeID: storeID);
   }
 
   @override
@@ -47,7 +50,6 @@ class _CurrentOrdersScreenState extends State<CurrentOrdersScreen> {
 
   @override
   Widget build(BuildContext context) {
-    
     final ThemeData theme = getTheme(context: context);
     return Scaffold(
       backgroundColor: theme.colorScheme.background,
@@ -88,7 +90,7 @@ class _CurrentOrdersScreenState extends State<CurrentOrdersScreen> {
                       child: CustomEmptyError(
                           message: 'No Orders to show here...'));
                 }
-        
+
                 return Expanded(
                   child: ListView.builder(
                       physics: const BouncingScrollPhysics(),

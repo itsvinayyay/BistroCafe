@@ -13,17 +13,17 @@ import 'package:food_cafe/widgets/custom_text_button.dart';
 import 'package:food_cafe/widgets/custom_TextFormField.dart';
 
 class SignUp extends StatefulWidget {
-  const SignUp({Key? key}) : super(key: key);
+  const SignUp({super.key});
 
   @override
   State<SignUp> createState() => _SignUpState();
 }
 
 class _SignUpState extends State<SignUp> {
-  TextEditingController _nameController = TextEditingController();
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
-  TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   late LoginCubit loginCubit;
 
@@ -31,7 +31,7 @@ class _SignUpState extends State<SignUp> {
   late ConfirmPasswordVisibility confirmPasswordVisibility;
   @override
   void initState() {
-    // TODO: implement initState
+    
     super.initState();
     loginCubit = BlocProvider.of<LoginCubit>(context);
     passwordVisibility = BlocProvider.of<PasswordVisibility>(context);
@@ -41,7 +41,7 @@ class _SignUpState extends State<SignUp> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
+    
     super.dispose();
     passwordVisibility.close();
     confirmPasswordVisibility.close();
@@ -63,20 +63,14 @@ class _SignUpState extends State<SignUp> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Image.asset("assets/images/logo.png"),
-                  Text(
-                    "Pure Flavours",
-                    style: theme.textTheme.titleMedium,
-                  ),
-                  SizedBox(
-                    height: 47.h,
-                  ),
+                  Hero(tag: 'logo2',child: Image.asset("assets/images/logo2.png", height: 200.h,)),
+                  const SizedBox(height: 20,),
                   Text(
                     "Create your Account",
                     style: theme.textTheme.headlineMedium,
                   ),
-                  SizedBox(
-                    height: 40.h,
+                  const SizedBox(
+                    height: 15,
                   ),
                   customTextFormField(
                     theme: theme,
@@ -90,8 +84,8 @@ class _SignUpState extends State<SignUp> {
                       return null;
                     },
                   ),
-                  SizedBox(
-                    height: 12.h,
+                  const SizedBox(
+                    height: 12,
                   ),
                   customTextFormField(
                     theme: theme,
@@ -107,8 +101,8 @@ class _SignUpState extends State<SignUp> {
                       return null;
                     },
                   ),
-                  SizedBox(
-                    height: 12.h,
+                  const SizedBox(
+                    height: 12,
                   ),
                   customTextFormField(
                     theme: theme,
@@ -128,8 +122,8 @@ class _SignUpState extends State<SignUp> {
                       return null;
                     },
                   ),
-                  SizedBox(
-                    height: 12.h,
+                  const SizedBox(
+                    height: 12,
                   ),
                   customTextFormField(
                       theme: theme,
@@ -147,14 +141,14 @@ class _SignUpState extends State<SignUp> {
                         }
                         return null;
                       }),
-                  SizedBox(
-                    height: 118.h,
+                  const SizedBox(
+                    height: 40,
                   ),
                   BlocConsumer<LoginCubit, LoginState>(
                     listener: (context, state) {
                       if (state is LoginRequiredVerificationState) {
-                        Navigator.pushReplacementNamed(
-                            context, Routes.signupVerification);
+                        Navigator.pushNamedAndRemoveUntil(
+                            context, Routes.signupVerification, (route) => false);
                       } else if (state is LoginErrorState) {
                         ScaffoldMessenger.of(context)
                             .showSnackBar(SnackBar(content: Text(state.error)));
@@ -193,7 +187,7 @@ class _SignUpState extends State<SignUp> {
                   Text(
                     "Already have an Account?",
                     style: TextStyle(
-                        color: Color(0XFF6B50F6),
+                        color: const Color(0XFF6B50F6),
                         fontWeight: FontWeight.w400,
                         fontFamily: "BentonSans_Medium",
                         fontSize: 12.sp,

@@ -51,26 +51,20 @@ class _SignInScreenState extends State<SignInScreen> {
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: SafeArea(
           child: SingleChildScrollView(
-            physics: BouncingScrollPhysics(),
+            physics: const BouncingScrollPhysics(),
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 48.h),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Image.asset("assets/images/logo.png"),
-                  Text(
-                    "Pure Flavours",
-                    style: theme.textTheme.titleMedium,
-                  ),
-                  SizedBox(
-                    height: 47.h,
-                  ),
+                  Hero(tag: 'logo2',child: Image.asset("assets/images/logo2.png", height: 200.h,)),
+                  const SizedBox(height: 20,),
                   Text(
                     "Login to your Account",
                     style: theme.textTheme.headlineMedium,
                   ),
-                  SizedBox(
-                    height: 40.h,
+                  const SizedBox(
+                    height: 15,
                   ),
                   Form(
                     key: _formkey,
@@ -89,8 +83,8 @@ class _SignInScreenState extends State<SignInScreen> {
                             return null;
                           },
                         ),
-                        SizedBox(
-                          height: 12.h,
+                        const SizedBox(
+                          height: 12,
                         ),
                         customTextFormField(
                           theme: theme,
@@ -113,15 +107,15 @@ class _SignInScreenState extends State<SignInScreen> {
                       ],
                     ),
                   ),
-                  SizedBox(
-                    height: 20.h,
+                  const SizedBox(
+                    height: 20,
                   ),
                   Text(
                     "Or Continue with/as",
                     style: theme.textTheme.titleSmall,
                   ),
-                  SizedBox(
-                    height: 20.h,
+                  const SizedBox(
+                    height: 20,
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -144,7 +138,7 @@ class _SignInScreenState extends State<SignInScreen> {
                                 Icons.person_add_alt_1_rounded,
                                 color: theme.colorScheme.secondary,
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 width: 13,
                               ),
                               Text(
@@ -173,7 +167,7 @@ class _SignInScreenState extends State<SignInScreen> {
                                 Icons.person,
                                 color: theme.colorScheme.secondary,
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 width: 13,
                               ),
                               Text(
@@ -186,8 +180,8 @@ class _SignInScreenState extends State<SignInScreen> {
                       ),
                     ],
                   ),
-                  SizedBox(
-                    height: 20.h,
+                  const SizedBox(
+                    height: 20,
                   ),
                   GestureDetector(
                     onTap: () {
@@ -196,20 +190,20 @@ class _SignInScreenState extends State<SignInScreen> {
                     child: Text(
                       "Forgot your Password?",
                       style: TextStyle(
-                          color: Color(0XFF6B50F6),
+                          color: const Color(0XFF6B50F6),
                           fontWeight: FontWeight.w400,
                           fontFamily: "BentonSans_Medium",
                           fontSize: 12.sp,
                           decoration: TextDecoration.underline),
                     ),
                   ),
-                  SizedBox(
-                    height: 36.h,
+                  const SizedBox(
+                    height: 36,
                   ),
                   BlocConsumer<LoginCubit, LoginState>(
                       builder: (context, state) {
                     if (state is LoginLoadingState) {
-                      return Center(
+                      return const Center(
                         child: CircularProgressIndicator(
                           color: Colors.white,
                         ),

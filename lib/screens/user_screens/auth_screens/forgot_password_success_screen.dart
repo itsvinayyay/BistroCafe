@@ -8,7 +8,7 @@ import 'package:food_cafe/core/theme/theme.dart';
 import 'package:food_cafe/widgets/custom_text_button.dart';
 
 class ForgotPasswordSuccess extends StatefulWidget {
-  const ForgotPasswordSuccess({Key? key}) : super(key: key);
+  const ForgotPasswordSuccess({super.key});
 
   @override
   State<ForgotPasswordSuccess> createState() => _ForgotPasswordSuccessState();

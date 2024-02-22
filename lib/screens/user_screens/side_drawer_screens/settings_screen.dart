@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:food_cafe/cubits/common_cubits/theme_cubit/theme_cubit.dart';
 import 'package:food_cafe/core/theme/theme.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:food_cafe/utils/theme_check.dart';
 import 'package:food_cafe/widgets/custom_back_button.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -22,15 +23,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   void initState() {
-    
     super.initState();
     _initializeCubit();
   }
 
   @override
   Widget build(BuildContext context) {
-    final themeMode = context.watch<ThemeCubit>().state;
-    final ThemeData theme = themeMode == MyTheme.dark ? darkTheme : lightTheme;
+  
+    final ThemeData theme = getTheme(context: context);
     return Scaffold(
       backgroundColor: theme.colorScheme.background,
       body: SafeArea(
@@ -61,7 +61,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.lightbulb),
+                         Icon(
+                          Icons.lightbulb,
+                          color: theme.colorScheme.tertiary,
+                        ),
                         const SizedBox(
                           width: 10,
                         ),
@@ -81,8 +84,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         onChanged: (value) {
                           _themeCubit.toggleTheme(isDark: value);
                         },
-                        activeTrackColor: const Color.fromRGBO(108, 117, 125, 0.12),
-                        inactiveTrackColor: const Color.fromRGBO(108, 117, 125, 0.12),
+                        activeTrackColor:
+                            const Color.fromRGBO(108, 117, 125, 0.12),
+                        inactiveTrackColor:
+                            const Color.fromRGBO(108, 117, 125, 0.12),
                         inactiveThumbColor: theme.colorScheme.primary,
                         activeColor: theme.colorScheme.secondary,
                         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,

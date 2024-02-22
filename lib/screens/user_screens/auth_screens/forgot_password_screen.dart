@@ -48,7 +48,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       theme: theme,
                       title: "Forgot Password?",
                       subheading:
-                          "Enter your email on which you wish to receive verification link."),
+                          "Enter your email which is associated with your account."),
                   const SizedBox(
                     height: 20,
                   ),

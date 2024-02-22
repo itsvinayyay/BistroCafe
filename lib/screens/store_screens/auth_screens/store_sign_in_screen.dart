@@ -62,20 +62,14 @@ class _StoreSignInScreenState extends State<StoreSignInScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Image.asset("assets/images/logo.png"),
-                    Text(
-                      "Pure Flavours",
-                      style: theme.textTheme.titleMedium,
-                    ),
-                    SizedBox(
-                      height: 47.h,
-                    ),
+                    Hero(tag: 'logo2',child: Image.asset("assets/images/logo2.png", height: 200.h,)),
+                  const SizedBox(height: 20,),
                     Text(
                       "Login as a Cafe Owner",
                       style: theme.textTheme.headlineMedium,
                     ),
-                    SizedBox(
-                      height: 40.h,
+                    const SizedBox(
+                      height: 15,
                     ),
                     customTextFormField(
                         theme: theme,
@@ -89,8 +83,8 @@ class _StoreSignInScreenState extends State<StoreSignInScreen> {
                           }
                           return null;
                         }),
-                    SizedBox(
-                      height: 12.h,
+                    const SizedBox(
+                      height: 12,
                     ),
                     customTextFormField(
                       theme: theme,
@@ -110,8 +104,8 @@ class _StoreSignInScreenState extends State<StoreSignInScreen> {
                         return null;
                       },
                     ),
-                    SizedBox(
-                      height: 20.h,
+                    const SizedBox(
+                      height: 20,
                     ),
                     Text(
                       "Forgot your Password?",
@@ -122,8 +116,8 @@ class _StoreSignInScreenState extends State<StoreSignInScreen> {
                           fontSize: 12.sp,
                           decoration: TextDecoration.underline),
                     ),
-                    SizedBox(
-                      height: 36.h,
+                    const SizedBox(
+                      height: 36,
                     ),
                     BlocConsumer<LoginCubit, LoginState>(
                         builder: (context, state) {

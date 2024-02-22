@@ -1,13 +1,10 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food_cafe/cubits/common_cubits/login_cubit/login_cubit.dart';
 import 'package:food_cafe/cubits/common_cubits/login_cubit/login_state.dart';
-import 'package:food_cafe/cubits/common_cubits/theme_cubit/theme_cubit.dart';
 import 'package:food_cafe/core/routes/named_routes.dart';
-import 'package:food_cafe/core/theme/theme.dart';
 import 'package:food_cafe/data/services/connectivity_service.dart';
 import 'package:food_cafe/utils/theme_check.dart';
 import 'package:food_cafe/widgets/custom_text_button.dart';
@@ -77,18 +74,19 @@ class _SignUpVerificationState extends State<SignUpVerification> {
       backgroundColor: theme.colorScheme.background,
       body: SafeArea(
         child: SingleChildScrollView(
-          physics: BouncingScrollPhysics(),
+          physics: const BouncingScrollPhysics(),
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 48),
             child: Column(
               children: [
-                Image.asset("assets/images/logo.png"),
-                Text(
-                  "Pure Flavours",
-                  style: theme.textTheme.titleMedium,
-                ),
-                SizedBox(
-                  height: 10.h,
+                Hero(
+                    tag: 'logo2',
+                    child: Image.asset(
+                      "assets/images/logo2.png",
+                      height: 200.h,
+                    )),
+                const SizedBox(
+                  height: 20,
                 ),
                 Container(
                     alignment: Alignment.centerLeft,
@@ -112,8 +110,8 @@ class _SignUpVerificationState extends State<SignUpVerification> {
                         ),
                       ],
                     )),
-                SizedBox(
-                  height: 25.h,
+                const SizedBox(
+                  height: 25,
                 ),
                 Text(
                   "Verify your Account!",
@@ -129,15 +127,17 @@ class _SignUpVerificationState extends State<SignUpVerification> {
                     child: Image.asset("assets/images/demoSignup.gif"),
                   ),
                 ),
-                SizedBox(
-                  height: 30.h,
+                const SizedBox(
+                  height: 30,
                 ),
                 BlocConsumer<LoginCubit, LoginState>(
                   listener: (context, state) {
                     if (state is LoginLoggedInState) {
                       Navigator.pushNamedAndRemoveUntil(
-                          context, Routes.signUpSuccess, (route) => false,
-                          arguments: isUser);
+                        context,
+                        Routes.signUpSuccess,
+                        (route) => false,
+                      );
                     } else if (state is LoginUserNotVerifiedState) {
                       showSnackBar(
                           context: context, error: "You're not Verified.");
@@ -147,7 +147,7 @@ class _SignUpVerificationState extends State<SignUpVerification> {
                   },
                   builder: (context, state) {
                     if (state is LoginLoadingState) {
-                      return CustomCircularProgress();
+                      return const CustomCircularProgress();
                     }
                     return customButton(
                         context: context,
@@ -165,13 +165,13 @@ class _SignUpVerificationState extends State<SignUpVerification> {
                         title: "Verify");
                   },
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 20,
                 ),
                 Text(
                   "Didn't received verification mail?",
                   style: TextStyle(
-                      color: Color(0XFF6B50F6),
+                      color: const Color(0XFF6B50F6),
                       fontWeight: FontWeight.w400,
                       fontFamily: "BentonSans_Medium",
                       fontSize: 12.sp,
@@ -184,7 +184,7 @@ class _SignUpVerificationState extends State<SignUpVerification> {
                     Text(
                       "Resend button will be activated in ",
                       style: TextStyle(
-                        color: Color(0XFF6B50F6),
+                        color: const Color(0XFF6B50F6),
                         fontWeight: FontWeight.w400,
                         fontFamily: "BentonSans_Medium",
                         fontSize: 12.sp,
@@ -239,7 +239,7 @@ class _SignUpVerificationState extends State<SignUpVerification> {
   TweenAnimationBuilder<double> buildTimer() {
     return TweenAnimationBuilder(
       tween: Tween(begin: 30.00, end: 0.00),
-      duration: Duration(seconds: 30),
+      duration: const Duration(seconds: 30),
       builder: (BuildContext context, double value, Widget? child) => Text(
         "00:${value.toInt()}",
       ),

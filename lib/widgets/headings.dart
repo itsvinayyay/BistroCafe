@@ -26,7 +26,7 @@ Column loginHeader({
         width: 239.w,
         child: Text(
           subheading,
-          style: theme.textTheme.bodySmall!.copyWith(fontSize: 12),
+          style: theme.textTheme.bodySmall!.copyWith(fontSize: 12, height: 1.25),
         ),
       ),
     ],

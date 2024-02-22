@@ -3,9 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:food_cafe/cubits/common_cubits/login_cubit/login_cubit.dart';
 import 'package:food_cafe/cubits/common_cubits/login_cubit/login_state.dart';
-import 'package:food_cafe/cubits/common_cubits/theme_cubit/theme_cubit.dart';
 import 'package:food_cafe/core/routes/named_routes.dart';
-import 'package:food_cafe/core/theme/theme.dart';
 import 'package:food_cafe/utils/theme_check.dart';
 import 'package:food_cafe/widgets/custom_text_button.dart';
 
@@ -21,7 +19,7 @@ class _SignUpSuccessState extends State<SignUpSuccess> {
 
   @override
   void initState() {
-    // TODO: implement initState
+    
     super.initState();
     final state = context.read<LoginCubit>().state;
     if (state is LoginLoggedInState) {
@@ -33,7 +31,6 @@ class _SignUpSuccessState extends State<SignUpSuccess> {
 
   @override
   Widget build(BuildContext context) {
-    
     final ThemeData theme = getTheme(context: context);
     return Scaffold(
       backgroundColor: theme.colorScheme.background,
@@ -60,7 +57,7 @@ class _SignUpSuccessState extends State<SignUpSuccess> {
                 ),
               ),
               SizedBox(
-                height: 12.h,
+                height: 12,
               ),
               Text(
                 "Your Profile is Ready to use!",

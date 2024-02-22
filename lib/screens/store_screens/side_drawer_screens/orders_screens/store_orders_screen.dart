@@ -4,11 +4,13 @@ import 'package:food_cafe/cubits/cafe_owner_role_cubits/store_orders_cubit/curre
 import 'package:food_cafe/cubits/cafe_owner_role_cubits/store_orders_cubit/pastOrders_cubit/past_orders_cubit.dart';
 import 'package:food_cafe/cubits/cafe_owner_role_cubits/store_orders_cubit/requestedOrders_cubit/requested_orders_cubit.dart';
 import 'package:food_cafe/cubits/cafe_owner_role_cubits/store_orders_cubit/unpaid_orders_cubit.dart/unpaid_orders_cubit.dart';
+import 'package:food_cafe/data/services/notification_services.dart';
 import 'package:food_cafe/screens/store_screens/side_drawer_screens/orders_screens/store_current_orders_screen.dart';
 import 'package:food_cafe/screens/store_screens/side_drawer_screens/orders_screens/store_past_orders_screen.dart';
 import 'package:food_cafe/screens/store_screens/side_drawer_screens/orders_screens/store_requested_orders_screen.dart';
 import 'package:food_cafe/screens/store_screens/side_drawer_screens/orders_screens/store_unpaid_orders_screen.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:food_cafe/utils/login_state_check.dart';
 import 'package:food_cafe/utils/theme_check.dart';
 
 class StoreOrdersScreen extends StatefulWidget {
@@ -19,6 +21,8 @@ class StoreOrdersScreen extends StatefulWidget {
 }
 
 class _StoreOrdersScreenState extends State<StoreOrdersScreen> {
+  final NotificationServices _notificationServices = NotificationServices();
+  late String storeID;
   int currentBNIndex = 0;
 
   List<Widget> orderScreens = [
@@ -37,6 +41,15 @@ class _StoreOrdersScreenState extends State<StoreOrdersScreen> {
       child: const PastOrdersScreen(),
     ),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    storeID = checkLoginStateForCafeOwner(
+            context: context, screenName: 'Orders Screen')
+        .value;
+    _notificationServices.isTokenRefresh(storeID: storeID);
+  }
 
   @override
   Widget build(BuildContext context) {
