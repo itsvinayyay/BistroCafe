@@ -3,10 +3,15 @@
 
 BistroCafe is a versatile and user-friendly mobile application designed to streamline the cafe experience for both customers and cafe owners. With distinct roles for users and cafe owners, BistroCafe aims to enhance the order management process and provide a seamless interaction platform.
 
+<div style="display: flex; gap:40px; justify-content: center;">
+<img src="https://drive.google.com/uc?export=view&id=125Inl2xe7LAhM4cel3RPKnRv-Uh5PA7s"  width="200"/>
 
-![Project Logo](https://drive.google.com/file/d/125Inl2xe7LAhM4cel3RPKnRv-Uh5PA7s/view?usp=drive_link)
-![Project Logo](https://drive.google.com/file/d/18O5SUw9hgG4O0cTuaiI3cmzlodIM2iyF/view?usp=drive_link)
+<img src="https://drive.google.com/uc?export=view&id=18O5SUw9hgG4O0cTuaiI3cmzlodIM2iyF"  width="200"/>
 
+<img src="https://drive.google.com/uc?export=view&id=1WY416kXPujVbjPtFk2h5uYXA7MTUy_6H"  width="200"/>
+
+
+</div>
 
 
 
