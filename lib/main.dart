@@ -23,6 +23,7 @@ import 'package:food_cafe/screens/user_screens/auth_screens/sign_up_verification
 import 'package:food_cafe/screens/common_screens/on_board_screens/on_board_screen_1.dart';
 import 'package:food_cafe/utils/theme_check.dart';
 import 'package:loader_overlay/loader_overlay.dart';
+import 'package:flutter/services.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -34,6 +35,10 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
   runApp(
     ScreenUtilInit(
       designSize: const Size(375, 812),
