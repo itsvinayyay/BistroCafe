@@ -298,5 +298,5 @@ I would like to express my gratitude to the contributors, library maintainers, a
 
 Happy coding!
 
-@isvinayyay
+@itsvinayyay
 
