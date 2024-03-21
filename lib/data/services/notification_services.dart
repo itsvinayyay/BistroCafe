@@ -129,7 +129,7 @@ class NotificationServices {
       importance: Importance.high,
       priority: Priority.high,
       ticker: 'ticker',
-      icon: '@mipmap/ic_launcher',
+      icon: '@mipmap/logo',
       styleInformation: BigTextStyleInformation(''),
     );
 
