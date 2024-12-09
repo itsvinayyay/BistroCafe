@@ -24,6 +24,7 @@ class CurrentOrdersCubit extends Cubit<CurrentOrdersState> {
   /// Parameters:
   /// - [storeID]: The identifier for the store.
   Future<void> initialize(String storeID) async {
+    await _api.initialize();
     // Emit the loading state to update the UI.
     emit(CurrentLoadingState(state.orders));
 

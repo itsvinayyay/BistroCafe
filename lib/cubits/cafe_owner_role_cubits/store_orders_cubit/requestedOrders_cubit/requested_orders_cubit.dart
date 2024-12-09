@@ -23,7 +23,9 @@ class RequestedOrdersCubit extends Cubit<RequestedOrdersState> {
   ///
   /// @param storeID The identifier of the store for which requested orders are fetched.
   Future<void> initialize(String storeID) async {
+    await _api.initialize();
     emit(RequestedLoadingState(state.orders));
+    
 
     try {
       await checkConnectivityForCubits(onDisconnected: () {

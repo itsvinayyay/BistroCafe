@@ -46,6 +46,7 @@ class BillingCheckOutCubit extends Cubit<BillingCheckoutState> {
 
     // Initializing an instance of the Api class.
     Api api = Api();
+    await api.initialize();
 
     try {
       // Performing the billing checkout using the billing repository.
@@ -61,7 +62,8 @@ class BillingCheckOutCubit extends Cubit<BillingCheckoutState> {
       );
 
       // Extracting the cafe owner's token ID.
-      String tokenID = await _billingRepository.extractCafeOwnerTokenID(storeID);
+      String tokenID =
+          await _billingRepository.extractCafeOwnerTokenID(storeID);
 
       // Sending a notification to the cafe owner about the order request.
       await api.sendMessage(

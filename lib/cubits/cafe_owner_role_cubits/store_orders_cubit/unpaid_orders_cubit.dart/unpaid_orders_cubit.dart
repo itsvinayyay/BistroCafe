@@ -24,6 +24,7 @@ class UnpaidOrdersCubit extends Cubit<UnpaidOrdersState> {
   /// Parameters:
   /// - [storeID]: The identifier for the store.
   Future<void> initialize({required String storeID}) async {
+    await _api.initialize();
     // Emit the loading state to update the UI.
     emit(UnpaidOrdersLoadingState(state.orders));
 
